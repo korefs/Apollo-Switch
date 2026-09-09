@@ -1,0 +1,110 @@
+//
+//  InputManager.hpp
+//  Moonlight
+//
+//  Created by Даниил Виноградов on 27.05.2021.
+//
+
+#pragma once
+
+#include "Singleton.hpp"
+#include "keyboard_view.hpp"
+#include <borealis.hpp>
+#include <chrono>
+#include <optional>
+#include <vector>
+
+// Moonlight ready gamepad
+struct GamepadState {
+    short buttonFlags = 0;
+    unsigned char leftTrigger = 0;
+    unsigned char rightTrigger = 0;
+    short leftStickX = 0;
+    short leftStickY = 0;
+    short rightStickX = 0;
+    short rightStickY = 0;
+
+    bool is_equal(GamepadState other) {
+        return buttonFlags == other.buttonFlags &&
+               leftTrigger == other.leftTrigger &&
+               rightTrigger == other.rightTrigger &&
+               leftStickX == other.leftStickX &&
+               leftStickY == other.leftStickY &&
+               rightStickX == other.rightStickX &&
+               rightStickY == other.rightStickY;
+    }
+};
+
+struct MouseStateS {
+    float scroll_y = 0;
+    bool l_pressed = 0;
+    bool m_pressed = 0;
+    bool r_pressed = 0;
+};
+
+struct RumbleValues {
+    unsigned short lowFreqMotor;
+    unsigned short highFreqMotor;
+    uint16_t leftTriggerMotor;
+    uint16_t rightTriggerMotor;
+};
+
+struct HostShortcutState {
+    int action = -1;
+    int holdTime = 1;
+    bool eligible = false;
+    bool triggered = false;
+    std::chrono::steady_clock::time_point pressedAt;
+    std::vector<brls::ControllerButton> buttons;
+};
+
+class MoonlightInputManager : public Singleton<MoonlightInputManager> {
+  public:
+    MoonlightInputManager();
+    void dropInput();
+    void handleInput(bool ignoreTouch = false);
+    void handleRumble(unsigned short controller, unsigned short lowFreqMotor, unsigned short highFreqMotor);
+    void handleRumbleTriggers(unsigned short controller, unsigned short lowFreqMotor, unsigned short highFreqMotor);
+    void updateTouchScreenPanDelta(brls::PanGestureStatus panStatus);
+    void reloadButtonMappingLayout();
+    void setInputEnabled(bool enabled) { inputEnabled = enabled; }
+    static void leftMouseClick();
+    static void rightMouseClick();
+
+  private:
+    enum class DesktopScrollAxis {
+        None,
+        Horizontal,
+        Vertical,
+    };
+
+    RumbleValues rumbleCache[GAMEPADS_MAX];
+    GamepadState lastGamepadStates[GAMEPADS_MAX];
+    HostShortcutState hostShortcutStates[GAMEPADS_MAX];
+    brls::ControllerButton mappingButtons[brls::_BUTTON_MAX];
+    std::optional<brls::PanGestureStatus> panStatus;
+    std::map<uint32_t, bool> activeTouchIDs;
+    brls::Point desktopMouseRemainder = {0, 0};
+    brls::Point desktopScrollRemainder = {0, 0};
+    float pendingHorizontalScroll = 0;
+    unsigned pendingHorizontalScrollEvents = 0;
+    DesktopScrollAxis desktopScrollAxis = DesktopScrollAxis::None;
+    std::chrono::steady_clock::time_point lastDesktopScrollEvent;
+    bool inputDropped = false;
+    bool inputEnabled = true;
+
+    brls::ControllerState mapController(brls::ControllerState controller);
+    static short glfwKeyToVKKey(brls::BrlsKeyboardScancode key);
+    void sendRelativeMouseMove(brls::Point offset);
+    void handleDesktopMouseScroll(brls::Point scroll);
+    void sendDesktopMouseScroll(brls::Point scroll);
+
+    GamepadState getControllerState(int controllerNum, bool specialKey);
+    std::vector<brls::ControllerButton> handleHostShortcuts(
+        int controllerNum, const brls::ControllerState& controller);
+    static void sendHostShortcut(int action);
+    void resetHostShortcuts();
+    void handleControllers(bool specialKey);
+
+    static short controllersToMap();
+};

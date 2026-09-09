@@ -1,0 +1,6 @@
+cmake-build-debug
+.DS_Store
+libromfs-generator
+build*
+vcpkg_installed
+.psv-logs/
