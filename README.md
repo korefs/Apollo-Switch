@@ -1,6 +1,15 @@
-# Apollo-Switch
+# Apollo Switch
 
-Apollo-Switch is a fork of [Moonlight Switch Client](XITRIX/Moonlight-Switch "Moonlight Switch Client") for Nintendo Switch.
+Apollo Switch is a Nintendo Switch streaming client designed primarily for
+[Apollo](https://github.com/ClassicOldSong/Apollo) (Sunshine-based) servers,
+while remaining fully compatible with standard Moonlight/GameStream hosts.
+
+It is a fork of [Moonlight-Switch](https://github.com/XITRIX/Moonlight-Switch)
+by XITRIX and inherits its proven streaming core. The Limelight/moonlight-common-c
+streaming protocol implementation is preserved and attributed.
+
+> Apollo Switch is an independent project. It is not affiliated with the
+> Moonlight team or LizardByte.
 
 ## Screenshots
 <details>
@@ -16,12 +25,10 @@ Apollo-Switch is a fork of [Moonlight Switch Client](XITRIX/Moonlight-Switch "Mo
 
 # Installing
 ### Switch
-1. Download latest Moonlight-Switch [release](https://github.com/XITRIX/Moonlight-Switch/releases).
-2. Put Moonlight.nro to sdcard:/switch/Moonlight-Switch;
+1. Download the latest Apollo Switch release.
+2. Put `Apollo.nro` to `sdcard:/switch/Apollo-Switch/`;
 3. Launch hbmenu over *Title Redirection* (for FULL RAM access);
-4. Launch moonlight.
-
-Or download it from [HB App Store](https://apps.fortheusers.org/switch/Moonlight-Switch)
+4. Launch Apollo Switch.
 
 > [!TIP]
 > To be able to use high bitrate setting especially with 1080p - resolution, you need to overclock CPU/GPU of your console.
@@ -37,7 +44,7 @@ Or download it from [HB App Store](https://apps.fortheusers.org/switch/Moonlight
 Accept [invite for TestFlight](https://testflight.apple.com/join/P9EX5vQ5) and download app from there
 
 ## Discord
-Feel free to join [Moonlight discord server](https://discord.gg/fmtcVPzaG4), you will find me there in "switch-help" channel 
+Feel free to join the [Moonlight Discord server](https://discord.gg/fmtcVPzaG4) — you can find help in the "switch-help" channel. An Apollo Switch–specific channel may be available in the future.
 
 ## Controls
 ### Mouse
@@ -79,12 +86,12 @@ complete combination for one second to trigger it. The selected buttons are not
 forwarded as gamepad input until the combination is fully released.
 
 ## NSP forwarder
-App supports NSP forwarders to start stream immediately with predefined configuration. Add app you want to launch in Favorites list first. You can generate forwarder using [NSP Forwarder Generator](https://nsp-forwarder.vercel.app/moonlight)
+App supports NSP forwarders to start stream immediately with predefined configuration. Add app you want to launch in Favorites list first.
 
 ### Manually
-If you'd like to create it manually, without help of generator, you'll need to create forwarder which will pass thees arguments to the application:
+If you'd like to create it manually, you'll need to create a forwarder which will pass these arguments to the application:
 - `--ip` - IP address of your PC
-- `--appid` - ID of the app to launch, it has to be added into "Favorites list" (you could find it in /switch/Moonlight-Switch/settings.json)
+- `--appid` - ID of the app to launch, it has to be added into "Favorites list" (you could find it in `/switch/Apollo-Switch/settings.json`)
 - `--appname` - The name of the app without any spacings
 
 example:
@@ -137,14 +144,14 @@ If you'd like to test your translation, you could follow build instructions, or 
 > [!WARNING]
 > Currently there is no way to select language inside of app, it takes from system settings, so it is impossible to add locatization, that HOS doesn't support (that happend with Czech language).
 
-## Build Moonlight-Switch
+## Build Apollo Switch
 
 ```bash
 cd 'folder/to/store/the/sources'
 
 # Clone this repo with submodules
-git clone https://github.com/XITRIX/Moonlight-Switch.git --recursive
-cd Moonlight-Switch
+git clone https://github.com/your-org/Apollo-Switch.git --recursive
+cd Apollo-Switch
 ```
 
 ### Switch
@@ -153,7 +160,7 @@ To build for Switch, a standard development environment must first be set up. In
 
 ```bash
 cmake -B build/switch -DPLATFORM_SWITCH=ON
-make -C build/switch Moonlight.nro -j$(nproc)
+cmake --build build/switch --target Apollo.nro --parallel
 ```
 
 ### PS Vita
@@ -303,12 +310,15 @@ open build/tvos/*.xcodeproj
 ```
 
 ## Credits
+
+[XITRIX](https://github.com/XITRIX) for creating [Moonlight-Switch](https://github.com/XITRIX/Moonlight-Switch), the upstream project that Apollo Switch is forked from. The core streaming architecture, deko3d renderer, frame pacing system, and platform integrations originate from that work.
+
 Thanks a lot to [Rock88](https://github.com/rock88) and his [Moonlight-NX](https://github.com/rock88/moonlight-nx), lots of streaming code has been lend from it 👍.
 
-[Xfangfang](https://github.com/xfangfang) for maintaining [Borealis](https://github.com/xfangfang/borealis) library. iOS port would not be possible without it. 
+[Xfangfang](https://github.com/xfangfang) for maintaining [Borealis](https://github.com/xfangfang/borealis) library. iOS port would not be possible without it.
 
-[Averne](https://github.com/averne) for NVDEC implementation into [FFmpeg](https://github.com/averne/FFmpeg) and useful guidance of how to enable it 
+[Averne](https://github.com/averne) for NVDEC implementation into [FFmpeg](https://github.com/averne/FFmpeg) and useful guidance of how to enable it.
 
-Also huge thanks to [Cooler3D](https://github.com/Cooler3Ds) for help with Deko3D implementation and solving performance issues
+Also huge thanks to [Cooler3D](https://github.com/Cooler3Ds) for help with Deko3D implementation and solving performance issues.
 
 The Switch deko3d upscaling path includes AMD FidelityFX Super Resolution 1.0 EASU and RCAS code translated from the MIT-licensed [GPUOpen FidelityFX-FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR) reference implementation. Copyright (c) Advanced Micro Devices, Inc. All rights reserved.

@@ -7,6 +7,8 @@
 
 #ifdef __SWITCH__
 #include <borealis/platforms/switch/switch_input.hpp>
+#include "NetworkState.hpp"
+#include "OperationMode.hpp"
 #endif
 
 #include "streaming_view.hpp"
@@ -103,10 +105,12 @@ StreamingView::StreamingView(const Host& host, const AppInfo& app) : host(host),
             const Host effectiveHost =
                 Settings::instance().host(this->host).value_or(this->host);
 #ifdef PLATFORM_SWITCH
+            const DeviceMode deviceMode = OperationMode::current();
             const ResolvedStreamSettings streamSettings =
                 StreamProfileResolver::resolve(
                     effectiveHost, activeAddress,
-                    StreamProfileResolver::currentNetworkConnectionType());
+                    NetworkState::current(),
+                    deviceMode);
 #else
             const ResolvedStreamSettings streamSettings =
                 StreamProfileResolver::globalDefaults();
@@ -114,11 +118,14 @@ StreamingView::StreamingView(const Host& host, const AppInfo& app) : host(host),
             session->set_stream_settings(streamSettings);
             if (streamSettings.context) {
                 Logger::info(
-                    "Streaming profile: {} ({})",
+                    "Streaming profile: {} / {} ({})",
                     StreamProfileResolver::contextName(*streamSettings.context),
+                    StreamProfileResolver::deviceModeName(streamSettings.deviceMode),
                     streamSettings.profileApplied ? "configured" : "global defaults");
             } else {
-                Logger::info("Streaming profile: context unavailable; using global defaults");
+                Logger::info("Streaming profile: {} / {} (global defaults)",
+                    StreamProfileResolver::deviceModeName(streamSettings.deviceMode),
+                    "no network context");
             }
 
             ASYNC_RETAIN

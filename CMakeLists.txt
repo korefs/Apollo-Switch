@@ -54,7 +54,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${EXTERN_PATH}/cmake")
 #find_package(PkgConfig REQUIRED)
 
 # project info
-project(Moonlight)
+project(Apollo)
 include(GNUInstallDirs)
 if (APPLE AND USE_SDL3)
     enable_language(OBJC)
@@ -68,14 +68,14 @@ if (PLATFORM_IOS OR PLATFORM_TVOS OR PLATFORM_VISIONOS)
     moonlight_prepare_apple_mobile_vcpkg()
 endif ()
 
-set(VERSION_MAJOR "1")
-set(VERSION_MINOR "5")
+set(VERSION_MAJOR "0")
+set(VERSION_MINOR "1")
 set(VERSION_ALTER "0")
-set(VERSION_BUILD "1")
-set(PACKAGE_NAME "ru.xitrix.Moonlight")
-set(PSN_TITLE_ID  "MNTL00000")
+set(VERSION_BUILD "0")
+set(PACKAGE_NAME "com.apollo.switch")
+set(PSN_TITLE_ID  "APLO00000")
 set(PSN_VERSION  "01.00")
-set(PROJECT_AUTHOR "XITRIX")
+set(PROJECT_AUTHOR "Apollo Switch Contributors")
 set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/img/moonlight_icon.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 
@@ -203,6 +203,7 @@ file(GLOB MAIN_SRC CONFIGURE_DEPENDS
     app/src/gestures/*.cpp
     app/src/keyboards/*.cpp
     app/src/libgamestream/*.cpp
+    app/src/platform/switch/*.cpp
     app/src/streaming/*.cpp
     app/src/streaming/audio/*.cpp
     app/src/streaming/ffmpeg/*.cpp
@@ -482,6 +483,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         app/src/gestures
         app/src/keyboards
         app/src/libgamestream
+        app/src/platform/switch
         app/src/streaming
         app/src/streaming/audio
         app/src/streaming/ffmpeg

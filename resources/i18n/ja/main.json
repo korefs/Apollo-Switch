@@ -1,6 +1,6 @@
-{
+﻿{
     "about": {
-        "about": "Moonlight-Switch is a third-party game streaming client based on Moonlight-Common-C for the Nintendo Switch",
+        "about": "Apollo Switch is a third-party game streaming client based on Moonlight-Common-C for the Nintendo Switch",
         "link_gbatemp": "GbaTemp Page",
         "link_github": "GitHub Page",
         "link_patreon": "Patreon Page",
@@ -13,7 +13,7 @@
         "thanks_5": " Everyone involved into app development",
         "thanks_6": " You, for using my homebrew!",
         "title": "About",
-        "version": "Moonlight-Switch v{} by XITRIX"
+        "version": "Apollo Switch v{}"
     },
     "add_host": {
         "connect": "接続",
@@ -210,5 +210,5 @@
         "favorites": "Favorites",
         "settings": "設定"
     },
-    "title": "Moonlight"
+    "title": "Apollo Switch"
 }

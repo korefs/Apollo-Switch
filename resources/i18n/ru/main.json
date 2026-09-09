@@ -1,6 +1,6 @@
 {
     "about": {
-        "about": "Moonlight-Switch - это сторонний клиент потоковой передачи игр для Nintendo Switch основанный на Moonlight-Common-C",
+        "about": "Apollo Switch - клиент потоковой передачи игр для Nintendo Switch, основанный на Moonlight-Common-C. Форк Moonlight-Switch.",
         "link_gbatemp": "Страница на GbaTemp",
         "link_github": "Страница на GitHub",
         "link_patreon": "Страница на Patreon",
@@ -13,7 +13,7 @@
         "thanks_5": " Всем, кто принимал участие в разработке данного приложения",
         "thanks_6": " Вам, за то что используете моё Homebrew",
         "title": "О программе",
-        "version": "Moonlight-Switch v{} от XITRIX"
+        "version": "Apollo Switch v{}"
     },
     "add_host": {
         "connect": "Подключиться",
@@ -210,5 +210,5 @@
         "favorites": "Избранные",
         "settings": "Настройки"
     },
-    "title": "Moonlight"
+    "title": "Apollo Switch"
 }

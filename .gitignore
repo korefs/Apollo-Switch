@@ -4,3 +4,4 @@ libromfs-generator
 build*
 vcpkg_installed
 .psv-logs/
+docs/architecture

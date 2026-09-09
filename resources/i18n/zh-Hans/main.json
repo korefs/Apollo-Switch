@@ -1,6 +1,6 @@
-{
+﻿{
     "about": {
-        "about": "Moonlight-Switch是Nintendo Switch平台的一个基于Moonlight-Common-C的第三方游戏串流客户端",
+        "about": "Apollo Switch是Nintendo Switch平台的一个基于Moonlight-Common-C的第三方游戏串流客户端",
         "link_gbatemp": "GbaTemp页面",
         "link_github": "GitHub页面",
         "link_patreon": "Patreon页面",
@@ -13,7 +13,7 @@
         "thanks_5": " 参与应用程序开发的每个人",
         "thanks_6": " 你，感谢使用我的自制软件！",
         "title": "关于",
-        "version": "Moonlight-Switch v{} by XITRIX"
+        "version": "Apollo Switch v{}"
     },
     "add_host": {
         "connect": "连接",
@@ -210,5 +210,5 @@
         "favorites": "最爱",
         "settings": "设置"
     },
-    "title": "Moonlight"
+    "title": "Apollo Switch"
 }
