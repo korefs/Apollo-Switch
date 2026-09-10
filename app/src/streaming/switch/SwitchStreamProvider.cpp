@@ -1,4 +1,7 @@
-#include "SwitchMoonlightSessionDecoderAndRenderProvider.hpp"
+// Apollo Switch
+// SwitchStreamProvider.cpp
+
+#include "SwitchStreamProvider.hpp"
 #include "FFmpegVideoDecoder.hpp"
 
 #ifdef __SWITCH__
@@ -23,13 +26,11 @@
 #error No renderer selected, enable USE_GL_RENDERER, USE_D3D11_RENDERER, or USE_METAL_RENDERER
 #endif
 
-IFFmpegVideoDecoder*
-SwitchMoonlightSessionDecoderAndRenderProvider::video_decoder() {
+IFFmpegVideoDecoder* SwitchStreamProvider::video_decoder() {
     return new FFmpegVideoDecoder();
 }
 
-IVideoRenderer*
-SwitchMoonlightSessionDecoderAndRenderProvider::video_renderer() {
+IVideoRenderer* SwitchStreamProvider::video_renderer() {
 #ifdef BOREALIS_USE_DEKO3D
     return new DKVideoRenderer();
 #elif defined(PLATFORM_ANDROID)
@@ -43,8 +44,7 @@ SwitchMoonlightSessionDecoderAndRenderProvider::video_renderer() {
 #endif
 }
 
-IAudioRenderer*
-SwitchMoonlightSessionDecoderAndRenderProvider::audio_renderer() {
+IAudioRenderer* SwitchStreamProvider::audio_renderer() {
 #ifdef __SWITCH__
     return new AudrenAudioRenderer();
 #elif defined(__SDL2__) || defined(__SDL3__)

@@ -7,7 +7,7 @@ PSV_PROJECT_ROOT="$(cd "${PSV_SCRIPT_DIR}/.." && pwd)"
 PSV_BUILD_DIR="${PSV_BUILD_DIR:-${PSV_PROJECT_ROOT}/build/psvita}"
 PSV_BUILD_TYPE="${PSV_BUILD_TYPE:-Release}"
 PSV_IP="${PSV_IP:-192.168.1.209}"
-PSV_TITLE_ID="${PSV_TITLE_ID:-MNTL00000}"
+PSV_TITLE_ID="${PSV_TITLE_ID:-APLO00000}"
 PSV_FTP_PORT="${PSV_FTP_PORT:-1337}"
 PSV_COMMAND_PORT="${PSV_COMMAND_PORT:-1338}"
 PSV_LOG_PORT="${PSV_LOG_PORT:-9999}"
@@ -38,8 +38,8 @@ psv_usage() {
 Usage: scripts/psv-dev.sh [doctor|build|install|cycle|logs|parse-crash]
 
   doctor       Check the local toolchain and Vita development services.
-  build        Configure and build build/psvita/Moonlight.vpk.
-  install      Build and upload the VPK to ux0:/data/Moonlight.vpk.
+  build        Configure and build build/psvita/Apollo.vpk.
+  install      Build and upload the VPK to ux0:/data/Apollo.vpk.
   cycle        Build, deploy eboot.bin, launch, and verify healthy logs.
   logs         Listen for PrincessLog output on the configured log port.
   parse-crash  Download and symbolize the newest Vita crash with Docker.
@@ -164,12 +164,12 @@ psv_build() {
         -DPLATFORM_PSV=ON \
         -DCMAKE_BUILD_TYPE="${PSV_BUILD_TYPE}"
 
-    psv_log 'Building Moonlight.vpk'
-    cmake --build "${PSV_BUILD_DIR}" --target Moonlight.vpk \
+    psv_log 'Building Apollo.vpk'
+    cmake --build "${PSV_BUILD_DIR}" --target Apollo.vpk \
         --parallel "$(psv_detect_jobs)"
 
-    [[ -f "${PSV_BUILD_DIR}/Moonlight.vpk" ]] || psv_die 'VPK build did not produce Moonlight.vpk'
-    [[ -f "${PSV_BUILD_DIR}/Moonlight.self" ]] || psv_die 'VPK build did not produce Moonlight.self'
+    [[ -f "${PSV_BUILD_DIR}/Apollo.vpk" ]] || psv_die 'VPK build did not produce Apollo.vpk'
+    [[ -f "${PSV_BUILD_DIR}/Apollo.self" ]] || psv_die 'VPK build did not produce Apollo.self'
 }
 
 psv_app_is_installed() {
@@ -177,9 +177,9 @@ psv_app_is_installed() {
 }
 
 psv_upload_install_vpk() {
-    psv_log 'Uploading VPK to ux0:/data/Moonlight.vpk'
-    psv_ftp_upload "${PSV_BUILD_DIR}/Moonlight.vpk" 'ux0:/data/Moonlight.vpk'
-    psv_log 'Upload complete. Install ux0:/data/Moonlight.vpk once in VitaShell, then run cycle.'
+    psv_log 'Uploading VPK to ux0:/data/Apollo.vpk'
+    psv_ftp_upload "${PSV_BUILD_DIR}/Apollo.vpk" 'ux0:/data/Apollo.vpk'
+    psv_log 'Upload complete. Install ux0:/data/Apollo.vpk once in VitaShell, then run cycle.'
 }
 
 psv_deploy_resources() {

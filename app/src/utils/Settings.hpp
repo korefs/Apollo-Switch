@@ -11,99 +11,15 @@
 #include <vector>
 
 #include "StreamProfile.hpp"
+#include "ApolloCapabilities.hpp"
+#include "ApolloVirtualDisplay.hpp"
 
-// Compact, per-host/context storage reserved for the quality assistant. Phase 1
-// only persists this model; it does not collect or upload telemetry.
-struct StreamQualityAggregate {
-    uint32_t sampleCount = 0;
-    float rttMs = 0.0f;
-    float rttVariationMs = 0.0f;
-    float networkFrameLoss = 0.0f;
-    float hostFps = 0.0f;
-    float receivedFps = 0.0f;
-    float decodedFps = 0.0f;
-    float renderedFps = 0.0f;
-    float decodeTimeMs = 0.0f;
-    float gpuTimeMs = 0.0f;
-    float postProcessingTimeMs = 0.0f;
-    float queueDepth = 0.0f;
-    float underflowsPerSecond = 0.0f;
-};
-
-enum AudioBackend : int {
-    SDL,
-#ifdef __SWITCH__
-    AUDREN,
-#endif
-};
-
-enum KeyboardType : int { COMPACT, FULLSIZED };
-
-enum class ButtonOverrideType : int { NONE, SCREENSHOT, HOME };
-
-struct KeyMappingLayout {
-    std::string title;
-    bool editable;
-    std::map<int, int> mapping;
-};
-
-struct KeyComboOptions {
-    int holdTime;
-    std::vector<brls::ControllerButton> buttons;
-};
-
-enum class KeyComboAction : int {
-    GUIDE,
-    OVERLAY,
-    MOUSE_INPUT,
-    HOST_CLOSE_APP,
-    HOST_SWITCH_WINDOW,
-};
-
-struct App {
-    std::string name;
-    int app_id;
-};
-
-struct Host {
-    std::string address;
-    std::string remoteAddress;
-    std::string hostname;
-    std::string mac;
-    std::vector<App> favorites;
-    std::map<StreamProfileContext, StreamProfile> streamProfiles;
-    std::map<StreamProfileContext, StreamQualityAggregate> streamQuality;
-
-    [[nodiscard]] std::vector<std::string> connection_addresses() const {
-        std::vector<std::string> addresses;
-        if (!address.empty())
-            addresses.push_back(address);
-        if (!remoteAddress.empty() && remoteAddress != address)
-            addresses.push_back(remoteAddress);
-        return addresses;
-    }
-
-    [[nodiscard]] std::string preferred_address() const {
-        return !address.empty() ? address : remoteAddress;
-    }
-
-    [[nodiscard]] bool has_address(const std::string& value) const {
-        return !value.empty() &&
-               (address == value || remoteAddress == value);
-    }
-};
-
-inline bool hosts_match(const Host& lhs, const Host& rhs) {
-    if (!lhs.mac.empty() && !rhs.mac.empty())
-        return lhs.mac == rhs.mac;
-
-    for (const auto& address : lhs.connection_addresses()) {
-        if (rhs.has_address(address))
-            return true;
-    }
-
-    return false;
-}
+#include "settings/HostSettings.hpp"
+#include "settings/StreamSettings.hpp"
+#include "settings/VideoSettings.hpp"
+#include "settings/AudioSettings.hpp"
+#include "settings/InputSettings.hpp"
+#include "settings/ApolloSettings.hpp"
 
 class Settings : public Singleton<Settings> {
   public:
@@ -139,6 +55,68 @@ class Settings : public Singleton<Settings> {
     void remove_favorite(const Host& host, int app_id);
     bool is_favorite(const Host& host, int app_id);
     bool has_any_favorite();
+
+    void set_host_capabilities(const Host& host, const ApolloCapabilities& caps) {
+        for (auto& h : m_hosts) {
+            if (hosts_match(h, host)) {
+                h.apolloCaps = caps;
+                break;
+            }
+        }
+    }
+
+    [[nodiscard]] bool has_any_apollo_host() const {
+        for (const auto& h : m_hosts) {
+            if (h.apolloCaps.has_value() && h.apolloCaps->isApollo) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    [[nodiscard]] VirtualDisplayMode virtual_display_mode() const {
+        return m_virtual_display_mode;
+    }
+    void set_virtual_display_mode(VirtualDisplayMode mode) {
+        m_virtual_display_mode = mode;
+    }
+
+    [[nodiscard]] int virtual_display_resolution() const {
+        return m_apollo.virtualDisplayResolution;
+    }
+    void set_virtual_display_resolution(int resolution) {
+        m_apollo.virtualDisplayResolution = resolution;
+    }
+
+    [[nodiscard]] int virtual_display_custom_width() const {
+        return m_apollo.virtualDisplayCustomWidth;
+    }
+    void set_virtual_display_custom_width(int width) {
+        m_apollo.virtualDisplayCustomWidth = width;
+    }
+
+    [[nodiscard]] int virtual_display_custom_height() const {
+        return m_apollo.virtualDisplayCustomHeight;
+    }
+    void set_virtual_display_custom_height(int height) {
+        m_apollo.virtualDisplayCustomHeight = height;
+    }
+
+    [[nodiscard]] int virtual_display_refresh_rate() const {
+        return m_apollo.virtualDisplayRefreshRate;
+    }
+    void set_virtual_display_refresh_rate(int rate) {
+        m_apollo.virtualDisplayRefreshRate = rate;
+    }
+
+    [[nodiscard]] VideoSettings& video() { return m_video; }
+    [[nodiscard]] const VideoSettings& video() const { return m_video; }
+    [[nodiscard]] AudioSettings& audio() { return m_audio; }
+    [[nodiscard]] const AudioSettings& audio() const { return m_audio; }
+    [[nodiscard]] InputSettings& input() { return m_input; }
+    [[nodiscard]] const InputSettings& input() const { return m_input; }
+    [[nodiscard]] ApolloSettings& apollo() { return m_apollo; }
+    [[nodiscard]] const ApolloSettings& apollo() const { return m_apollo; }
 
     [[nodiscard]] int resolution() const { return m_resolution; }
     void set_resolution(int resolution) { m_resolution = resolution; }
@@ -410,74 +388,57 @@ class Settings : public Singleton<Settings> {
     std::string m_gamepad_mapping_path;
 
     std::vector<Host> m_hosts;
-    int m_resolution = 720;
-    int m_native_resolution_scale = 100;
-    int m_fps = 60;
-#ifdef __PSV__
-    VideoCodec m_video_codec = H264;
-#else
-    VideoCodec m_video_codec = H265;
-#endif
-#ifdef __SWITCH__
-    AudioBackend m_audio_backend = AUDREN;
-#else
-    AudioBackend m_audio_backend = SDL;
-#endif
-    int m_bitrate = 10000;
-    bool m_enable_hdr = false;
-    UpscalingMode m_upscaling_mode = UPSCALING_OFF;
-    bool m_enable_dithering = false;
-    int m_dithering_strength = 3;
-    bool m_enable_rcas = true;
-    int m_rcas_strength = 20;
-    bool m_click_by_tap = false;
-    int m_decoder_threads = 4;
-    int m_frames_queue_size = 3;
-    FramePacingMode m_frame_pacing_mode = FramePacingMode::BALANCED;
-    bool m_sops = false;
-    bool m_play_audio = false;
-    bool m_write_log = false;
-    bool m_swap_ui_keys = false;
-    bool m_swap_joycon_stick_to_dpad = false;
-    bool m_touchscreen_mouse_mode = false;
-    bool m_swap_mouse_keys = false;
-    bool m_swap_mouse_scroll = false;
-    int m_rumble_force = 100;
-    int m_volume = 100;
-    bool m_use_hw_decoding = true;
-    KeyboardType m_keyboard_type = COMPACT;
-    ButtonOverrideType m_overlay_system_button = ButtonOverrideType::NONE;
-    ButtonOverrideType m_guide_system_button = ButtonOverrideType::NONE;
-    int m_keyboard_fingers = 3;
-    int m_keyboard_locale = 0;
-    bool m_volume_amplification = false;
-    int m_mouse_speed_multiplier = 34;
-    int m_current_mapping_layout = 0;
-    std::vector<KeyMappingLayout> m_mapping_laouts;
-    KeyComboOptions m_guide_key_options{
-        .holdTime = 0,
-        .buttons = {},
-    };
-    KeyComboOptions m_overlay_options{
-        .holdTime = 0,
-        .buttons = {brls::ControllerButton::BUTTON_BACK,
-                    brls::ControllerButton::BUTTON_START},
-    };
-    KeyComboOptions m_mouse_input_options{
-        .holdTime = 0,
-        .buttons = {},
-    };
-    KeyComboOptions m_host_close_app_options{
-        .holdTime = 1,
-        .buttons = {},
-    };
-    KeyComboOptions m_host_switch_window_options{
-        .holdTime = 1,
-        .buttons = {},
-    };
+    VideoSettings m_video;
+    AudioSettings m_audio;
+    InputSettings m_input;
+    ApolloSettings m_apollo;
+    bool m_write_log_internal = false;
 
-    float m_deadzone_stick_left = 0;
-    float m_deadzone_stick_right = 0;
+    // Reference aliases maintaining 100% backward compatibility
+    int& m_resolution = m_video.resolution;
+    int& m_native_resolution_scale = m_video.nativeResolutionScale;
+    int& m_fps = m_video.fps;
+    VideoCodec& m_video_codec = m_video.videoCodec;
+    AudioBackend& m_audio_backend = m_audio.backend;
+    int& m_bitrate = m_video.bitrate;
+    bool& m_enable_hdr = m_video.requestHdr;
+    UpscalingMode& m_upscaling_mode = m_video.upscalingMode;
+    bool& m_enable_dithering = m_video.dithering;
+    int& m_dithering_strength = m_video.ditheringStrength;
+    bool& m_enable_rcas = m_video.rcas;
+    int& m_rcas_strength = m_video.rcasStrength;
+    bool& m_click_by_tap = m_input.clickByTap;
+    int& m_decoder_threads = m_video.decoderThreads;
+    int& m_frames_queue_size = m_video.framesQueueSize;
+    FramePacingMode& m_frame_pacing_mode = m_video.framePacingMode;
+    bool& m_sops = m_video.sops;
+    bool& m_play_audio = m_audio.playAudio;
+    bool& m_write_log = m_write_log_internal;
+    bool& m_swap_ui_keys = m_input.swapUiKeys;
+    bool& m_swap_joycon_stick_to_dpad = m_input.swapJoyconStickToDpad;
+    bool& m_touchscreen_mouse_mode = m_input.touchscreenMouseMode;
+    bool& m_swap_mouse_keys = m_input.swapMouseKeys;
+    bool& m_swap_mouse_scroll = m_input.swapMouseScroll;
+    int& m_rumble_force = m_input.rumbleForce;
+    int& m_volume = m_audio.volume;
+    bool& m_use_hw_decoding = m_video.useHwDecoding;
+    KeyboardType& m_keyboard_type = m_input.keyboardType;
+    ButtonOverrideType& m_overlay_system_button = m_input.overlaySystemButton;
+    ButtonOverrideType& m_guide_system_button = m_input.guideSystemButton;
+    int& m_keyboard_fingers = m_input.keyboardFingers;
+    int& m_keyboard_locale = m_input.keyboardLocale;
+    bool& m_volume_amplification = m_audio.volumeAmplification;
+    int& m_mouse_speed_multiplier = m_input.mouseSpeedMultiplier;
+    int& m_current_mapping_layout = m_input.currentMappingLayout;
+    std::vector<KeyMappingLayout>& m_mapping_laouts = m_input.mappingLayouts;
+    KeyComboOptions& m_guide_key_options = m_input.guideKeyOptions;
+    KeyComboOptions& m_overlay_options = m_input.overlayOptions;
+    KeyComboOptions& m_mouse_input_options = m_input.mouseInputOptions;
+    KeyComboOptions& m_host_close_app_options = m_input.hostCloseAppOptions;
+    KeyComboOptions& m_host_switch_window_options = m_input.hostSwitchWindowOptions;
+    float& m_deadzone_stick_left = m_input.deadzoneStickLeft;
+    float& m_deadzone_stick_right = m_input.deadzoneStickRight;
+    VirtualDisplayMode& m_virtual_display_mode = m_apollo.virtualDisplayMode;
 
     void loadBaseLayouts();
     void sanitizeHostShortcutOptions();

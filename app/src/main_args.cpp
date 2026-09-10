@@ -26,7 +26,8 @@ bool canStartApp(int argc, char** argv);
 
 namespace {
 
-constexpr std::string_view DEEP_LINK_SCHEME = "moonlightswitch";
+constexpr std::string_view DEEP_LINK_SCHEME = "apolloswitch";
+constexpr std::string_view LEGACY_DEEP_LINK_SCHEME = "moonlightswitch";
 
 struct LaunchRequest {
     std::string mac;
@@ -59,8 +60,12 @@ bool startsWithNoCase(std::string_view value, std::string_view prefix) {
 
 bool isDeepLinkUrl(std::string_view value) {
     const size_t schemeEnd = value.find(':');
-    return schemeEnd == DEEP_LINK_SCHEME.size() &&
-           startsWithNoCase(value.substr(0, schemeEnd), DEEP_LINK_SCHEME);
+    if (schemeEnd == std::string_view::npos) {
+        return false;
+    }
+    std::string_view scheme = value.substr(0, schemeEnd);
+    return (schemeEnd == DEEP_LINK_SCHEME.size() && startsWithNoCase(scheme, DEEP_LINK_SCHEME)) ||
+           (schemeEnd == LEGACY_DEEP_LINK_SCHEME.size() && startsWithNoCase(scheme, LEGACY_DEEP_LINK_SCHEME));
 }
 
 int hexValue(char ch) {

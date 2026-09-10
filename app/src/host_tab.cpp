@@ -173,6 +173,10 @@ void HostTab::reloadHost() {
                                         : connectedAddress);
                 connect->setText("host/connect"_i18n);
                 state = AVAILABLE;
+
+                const auto caps = ApolloCapabilities::detect(result.value());
+                this->host.apolloCaps = caps;
+                Settings::instance().set_host_capabilities(this->host, caps);
             } else {
                 header->setTitle("host/status"_i18n + ": " +
                                  "host/unable"_i18n);

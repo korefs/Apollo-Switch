@@ -59,6 +59,10 @@ class SettingsTab : public brls::Box {
     BRLS_BIND(brls::BooleanCell, swapMouseScroll, "swap_mouse_scroll");
     BRLS_BIND(brls::Header, mouseSpeedHeader, "mouse_speed_header");
     BRLS_BIND(brls::Slider, mouseSpeedSlider, "mouse_speed_slider");
+    BRLS_BIND(brls::Header, apolloHeader, "apollo_header");
+    BRLS_BIND(brls::SelectorCell, apolloVirtualDisplay, "apollo_virtual_display");
+    BRLS_BIND(brls::SelectorCell, apolloVdResolution, "apollo_vd_resolution");
+    BRLS_BIND(brls::SelectorCell, apolloVdRefreshRate, "apollo_vd_refresh_rate");
     BRLS_BIND(brls::BooleanCell, writeLog, "writeLog");
 
     static brls::View* create();
@@ -66,6 +70,7 @@ class SettingsTab : public brls::Box {
   private:
     void refreshVideoCodecs();
     void updateDeadZoneItems();
+    void updateApolloVisibility();
     std::vector<VideoCodec> supportedVideoCodecs;
     bool videoCodecSelectorInitialized = false;
 };

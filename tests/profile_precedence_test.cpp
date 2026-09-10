@@ -1,4 +1,4 @@
-﻿// Apollo Switch
+// Apollo Switch
 // tests/profile_precedence_test.cpp
 //
 // Unit tests for the composable 5-layer profile system precedence rules:
@@ -8,6 +8,12 @@
 #include "DeviceProfile.hpp"
 #include "NetworkProfile.hpp"
 #include "EffectiveStreamProfile.hpp"
+#include "ApolloCapabilities.hpp"
+#include "ApolloVirtualDisplay.hpp"
+#include "IStreamSessionProvider.hpp"
+#include "settings/VideoSettings.hpp"
+#include "settings/AudioSettings.hpp"
+#include "settings/ApolloSettings.hpp"
 #include <cassert>
 #include <iostream>
 #include <map>
@@ -17,6 +23,7 @@ struct MockHost {
     std::string address = "192.168.1.100";
     std::string remoteAddress;
     std::map<StreamProfileContext, StreamProfile> streamProfiles;
+    std::optional<ApolloCapabilities> apolloCaps;
 };
 
 // Pure precedence resolution mirroring ProfileResolver
@@ -155,11 +162,104 @@ void testPrecedenceChain() {
     std::cout << "[PASS] testPrecedenceChain\n";
 }
 
+void testVirtualDisplayConfig() {
+    VirtualDisplayConfig configAuto;
+    configAuto.mode = VirtualDisplayMode::Automatic;
+
+    // Automatic mode adapts to Switch DeviceMode
+    auto handheldRes = configAuto.resolvedResolution(DeviceMode::Handheld);
+    assert(handheldRes.first == 1280 && handheldRes.second == 720);
+
+    auto dockedRes = configAuto.resolvedResolution(DeviceMode::Docked);
+    assert(dockedRes.first == 1920 && dockedRes.second == 1080);
+
+    // Custom mode with explicit width and height
+    VirtualDisplayConfig configCustom;
+    configCustom.mode = VirtualDisplayMode::Always;
+    configCustom.width = 2560;
+    configCustom.height = 1440;
+    auto customRes = configCustom.resolvedResolution(DeviceMode::Handheld);
+    assert(customRes.first == 2560 && customRes.second == 1440);
+
+    std::cout << "[PASS] testVirtualDisplayConfig\n";
+}
+
+void testApolloCapabilities() {
+    // Default capabilities (standard GFE server)
+    ApolloCapabilities gfeCaps;
+    assert(!gfeCaps.isApollo);
+    assert(!gfeCaps.virtualDisplay);
+    assert(!gfeCaps.serverCommands);
+
+    // Apollo detected capabilities
+    ApolloCapabilities apolloCaps;
+    apolloCaps.isApollo = true;
+    apolloCaps.virtualDisplay = true;
+    apolloCaps.virtualDisplayResolutionControl = true;
+    apolloCaps.serverCommands = true;
+    assert(apolloCaps.isApollo);
+    assert(apolloCaps.virtualDisplay);
+    assert(apolloCaps.virtualDisplayResolutionControl);
+
+    // Verify host capability isolation
+    MockHost gfeHost;
+    assert(!gfeHost.apolloCaps.has_value());
+
+    MockHost apolloHost;
+    apolloHost.apolloCaps = apolloCaps;
+    assert(apolloHost.apolloCaps.has_value());
+    assert(apolloHost.apolloCaps->virtualDisplay);
+
+    std::cout << "[PASS] testApolloCapabilities\n";
+}
+
+void testStreamInterfaces() {
+    class MockProvider : public IStreamSessionProvider {
+    public:
+        IFFmpegVideoDecoder* video_decoder() override { return nullptr; }
+        IVideoRenderer* video_renderer() override { return nullptr; }
+        IAudioRenderer* audio_renderer() override { return nullptr; }
+    };
+
+    MockProvider provider;
+    IStreamSessionProvider* pInterface = &provider;
+    assert(pInterface->video_decoder() == nullptr);
+    assert(pInterface->video_renderer() == nullptr);
+    assert(pInterface->audio_renderer() == nullptr);
+
+    MoonlightSessionDecoderAndRenderProvider* legacyPointer = pInterface;
+    assert(legacyPointer == pInterface);
+
+    std::cout << "[PASS] testStreamInterfaces\n";
+}
+
+void testDomainSettings() {
+    VideoSettings video;
+    assert(video.resolution == 720);
+    assert(video.fps == 60);
+    assert(video.bitrate == 10000);
+    assert(video.videoCodec == H265);
+    assert(video.useHwDecoding);
+
+    AudioSettings audio;
+    assert(audio.volume == 100);
+    assert(!audio.volumeAmplification);
+
+    ApolloSettings apollo;
+    assert(apollo.virtualDisplayMode == VirtualDisplayMode::Off);
+
+    std::cout << "[PASS] testDomainSettings\n";
+}
+
 int main() {
-    std::cout << "Running Apollo Switch profile precedence tests...\n";
+    std::cout << "Running Apollo Switch profile precedence, capabilities & interface tests...\n";
     testDeviceDefaults();
     testNetworkDefaults();
     testPrecedenceChain();
-    std::cout << "All profile precedence tests passed successfully!\n";
+    testVirtualDisplayConfig();
+    testApolloCapabilities();
+    testStreamInterfaces();
+    testDomainSettings();
+    std::cout << "All profile precedence, capability and interface tests passed successfully!\n";
     return 0;
 }

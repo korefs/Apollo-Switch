@@ -1,8 +1,8 @@
 # PS Vita development loop
 
-Moonlight uses Borealis' GLES2/SDL2 Vita backend. The local helper builds a
-debuggable VPK, deploys `Moonlight.self` as the installed app's `eboot.bin`,
-launches title `MNTL00000`, captures PrincessLog output, and requires the app to
+Apollo Switch uses Borealis' GLES2/SDL2 Vita backend. The local helper builds a
+debuggable VPK, deploys `Apollo.self` as the installed app's `eboot.bin`,
+launches title `APLO00000`, captures PrincessLog output, and requires the app to
 complete at least one Borealis frame before it reports success.
 
 ## One-time Vita setup
@@ -13,7 +13,7 @@ complete at least one Borealis frame before it reports success.
    `vitacompanion.suprx` in `ur0:/tai`, add it under `*main` in
    `ur0:/tai/config.txt`, and reboot. It must expose FTP on port 1337 and its
    command server on port 1338.
-3. Install and configure PrincessLog. Point network logging at this Mac's LAN
+3. Install and configure PrincessLog. Point network logging at this host's LAN
    address and TCP port 9999. `scripts/psv-dev.sh doctor` prints the address it
    expects. Reboot after changing the logger configuration.
 4. Upload the first package and install it once from VitaShell:
@@ -22,11 +22,11 @@ complete at least one Borealis frame before it reports success.
    scripts/psv-dev.sh install
    ```
 
-   This places the file at `ux0:/data/Moonlight.vpk`. Open it in VitaShell and
+   This places the file at `ux0:/data/Apollo.vpk`. Open it in VitaShell and
    confirm the install. Later code iterations replace only `eboot.bin` and do
    not reinstall the VPK.
 
-Keep the Vita awake and connected to the same network as the development Mac.
+Keep the Vita awake and connected to the same network as the development host.
 VitaShell's temporary FTP server is not a substitute for vitacompanion because
 the loop also needs the persistent command server.
 
@@ -40,7 +40,7 @@ scripts/psv-dev.sh cycle
 
 Success requires all of the following:
 
-- the `Moonlight.vpk` target builds;
+- the `Apollo.vpk` target builds;
 - the installed title directory is reachable by FTP;
 - vitacompanion accepts the launch command;
 - PrincessLog contains `VITA_HEALTH: READY`, emitted after the first complete

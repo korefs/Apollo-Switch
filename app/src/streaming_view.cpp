@@ -19,6 +19,7 @@
 #include "ingame_overlay_view.hpp"
 #include "streaming_input_overlay.hpp"
 #include "StreamProfileResolver.hpp"
+#include "integrations/apollo/ApolloVirtualDisplay.hpp"
 #include "two_finger_scroll_recognizer.hpp"
 #include <Limelight.h>
 #include <chrono>
@@ -106,15 +107,28 @@ StreamingView::StreamingView(const Host& host, const AppInfo& app) : host(host),
                 Settings::instance().host(this->host).value_or(this->host);
 #ifdef PLATFORM_SWITCH
             const DeviceMode deviceMode = OperationMode::current();
-            const ResolvedStreamSettings streamSettings =
+            ResolvedStreamSettings streamSettings =
                 StreamProfileResolver::resolve(
                     effectiveHost, activeAddress,
                     NetworkState::current(),
                     deviceMode);
 #else
-            const ResolvedStreamSettings streamSettings =
+            ResolvedStreamSettings streamSettings =
                 StreamProfileResolver::globalDefaults();
 #endif
+            // Apply Apollo Virtual Display overrides if applicable (M7)
+            if (result.value().isSunshine()) {
+                auto vdConfig = ApolloVirtualDisplay::buildConfig();
+                if (vdConfig.mode != VirtualDisplayMode::Off) {
+                    if (vdConfig.height) {
+                        streamSettings.resolution = *vdConfig.height;
+                    }
+                    if (vdConfig.refreshRate) {
+                        streamSettings.fps = *vdConfig.refreshRate;
+                    }
+                }
+            }
+
             session->set_stream_settings(streamSettings);
             if (streamSettings.context) {
                 Logger::info(

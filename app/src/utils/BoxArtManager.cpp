@@ -3,6 +3,7 @@
 #include "Settings.hpp"
 #include "nanovg.h"
 #include <mutex>
+#include <sys/time.h>
 #include <CImg.h>
 #include <filesystem>
 

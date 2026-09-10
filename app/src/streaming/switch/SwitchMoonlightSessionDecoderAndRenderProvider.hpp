@@ -1,11 +1,8 @@
-#include "MoonlightSession.hpp"
+﻿// Apollo Switch
+// SwitchMoonlightSessionDecoderAndRenderProvider.hpp
+//
+// Backward-compatibility header forwarding to SwitchStreamProvider.
 
-class SwitchMoonlightSessionDecoderAndRenderProvider
-    : public MoonlightSessionDecoderAndRenderProvider {
-  public:
-    SwitchMoonlightSessionDecoderAndRenderProvider() {}
+#pragma once
 
-    IFFmpegVideoDecoder* video_decoder();
-    IVideoRenderer* video_renderer();
-    IAudioRenderer* audio_renderer();
-};
+#include "SwitchStreamProvider.hpp"

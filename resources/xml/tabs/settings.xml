@@ -211,6 +211,21 @@
                 grow="1"/>
                 
             <brls:Header
+                id="apollo_header"
+                title="Apollo"
+                paddingTop="60"
+                lineTop="1px"/>
+
+            <brls:SelectorCell
+                id="apollo_virtual_display"/>
+
+            <brls:SelectorCell
+                id="apollo_vd_resolution"/>
+
+            <brls:SelectorCell
+                id="apollo_vd_refresh_rate"/>
+
+            <brls:Header
                 title="@i18n/settings/debug"
                 paddingTop="60"
                 lineTop="1px"/>

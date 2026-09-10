@@ -1,6 +1,6 @@
 # Linux and SteamOS builds
 
-Moonlight-Switch uses the same SDL3 Linux implementation on SteamOS and other
+Apollo Switch uses the same SDL3 Linux implementation on SteamOS and other
 desktop distributions. There is no separate SteamOS input, rendering, or
 streaming path.
 
@@ -35,42 +35,42 @@ driver still come from the host.
 Extract the Steam Runtime archive:
 
 ```bash
-tar -xzf Moonlight-Switch-*-steamrt4-*.tar.gz
+tar -xzf Apollo-Switch-*-steamrt4-*.tar.gz
 ```
 
-In Steam Desktop Mode, open `Moonlight-Switch.AppDir` in the file manager and
+In Steam Desktop Mode, open `Apollo-Switch.AppDir` in the file manager and
 double-click **Add-to-Steam.desktop**. Confirm **Execute** if the desktop asks
 for permission. The helper uses SteamOS's shortcut command when available, then
 falls back to the registered Steam URI handler, native Steam, or Flatpak Steam.
 It does not require a keyboard, root access, or the Steam file picker. Return to
-Game Mode and find Moonlight-Switch under **Library → Non-Steam**.
+Game Mode and find Apollo Switch under **Library → Non-Steam**.
 
 If the helper is unavailable on a non-SteamOS distribution, select
 **Games → Add a Non-Steam Game**, browse to
-`Moonlight-Switch.AppDir/AppRun`, and add it manually.
+`Apollo-Switch.AppDir/AppRun`, and add it manually.
 
-For a Steamworks depot, upload the *contents* of `Moonlight-Switch.AppDir`, use
+For a Steamworks depot, upload the *contents* of `Apollo-Switch.AppDir`, use
 `AppRun` as the Linux launch executable, and select **Steam Linux Runtime 4.0**
 in the Steamworks Linux Runtime settings.
 
 ### AppImage
 
 ```bash
-chmod +x Moonlight-Switch-*-linux-x86_64.AppImage
-./Moonlight-Switch-*-linux-x86_64.AppImage
+chmod +x Apollo-Switch-*-linux-x86_64.AppImage
+./Apollo-Switch-*-linux-x86_64.AppImage
 ```
 
 Use the `aarch64` filename on ARM64. If FUSE is unavailable, AppImage also
 supports:
 
 ```bash
-./Moonlight-Switch-*.AppImage --appimage-extract-and-run
+./Apollo-Switch-*.AppImage --appimage-extract-and-run
 ```
 
 ### Debian, Ubuntu, and Linux Mint
 
 ```bash
-sudo apt install ./moonlight-switch_*_amd64.deb
+sudo apt install ./apollo-switch_*_amd64.deb
 ```
 
 Use the `arm64.deb` file on ARM64.
@@ -78,7 +78,7 @@ Use the `arm64.deb` file on ARM64.
 ### Fedora
 
 ```bash
-sudo dnf install ./moonlight-switch-*.x86_64.rpm
+sudo dnf install ./apollo-switch-*.x86_64.rpm
 ```
 
 Use the `aarch64.rpm` file on ARM64. On RPM distributions with different
@@ -87,8 +87,8 @@ dependency naming, use the AppImage instead.
 ### Portable tarball
 
 ```bash
-tar -xzf Moonlight-Switch-*-linux-x86_64.tar.gz
-./Moonlight-Switch.AppDir/AppRun
+tar -xzf Apollo-Switch-*-linux-x86_64.tar.gz
+./Apollo-Switch.AppDir/AppRun
 ```
 
 ## Building locally
@@ -107,7 +107,7 @@ cmake --build --preset linux-release --parallel
 The release preset embeds resources and verifies at configure time that the
 selected FFmpeg libraries expose VA-API hardware configurations for both H.264
 and HEVC. A developer can explicitly disable that requirement with
-`-DMOONLIGHT_LINUX_REQUIRE_VAAPI=OFF`, but release artifacts must leave it
+`-DAPOLLO_LINUX_REQUIRE_VAAPI=OFF`, but release artifacts must leave it
 enabled.
 
 Create every portable package:
@@ -145,7 +145,7 @@ separate downloadable workflow artifact.
 Configuration verifies FFmpeg support, but only a machine with a GPU can test
 the driver. On a Steam Deck or Linux desktop:
 
-1. Enable **Use hardware decoding** in Moonlight-Switch.
+1. Enable **Use hardware decoding** in Apollo Switch.
 2. Start an H.264 or HEVC stream.
 3. Inspect `log.log` in the application data directory.
 4. Confirm it reports an initialized Linux `vaapi` hardware decoder rather

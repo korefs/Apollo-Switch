@@ -791,3 +791,11 @@ if (WIN32 AND PLATFORM_DESKTOP AND MOONLIGHT_DESKTOP_USE_SYSTEM_PACKAGES AND
         DEPENDS ${PROJECT_NAME}
         VERBATIM)
 endif ()
+
+if (PLATFORM_DESKTOP)
+    enable_testing()
+    add_executable(profile_precedence_test tests/profile_precedence_test.cpp)
+    target_include_directories(profile_precedence_test PRIVATE app/include app/src)
+    add_test(NAME ProfilePrecedenceTest COMMAND profile_precedence_test)
+endif()
+

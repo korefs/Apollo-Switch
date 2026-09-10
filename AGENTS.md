@@ -8,9 +8,9 @@ Application code lives in `app/src/`, with public headers in `app/include/`. Str
 
 - `cmake -B build/pc -DPLATFORM_DESKTOP=ON -DCMAKE_BUILD_TYPE=Release` configures a desktop build.
 - `cmake --build build/pc --parallel` compiles the configured desktop target. Run from the repository root so external `resources/` remain discoverable.
-- `cmake -B build/switch -DPLATFORM_SWITCH=ON` followed by `cmake --build build/switch --target Moonlight.nro --parallel` builds the Switch package with devkitPro installed.
+- `cmake -B build/switch -DPLATFORM_SWITCH=ON` followed by `cmake --build build/switch --target Apollo.nro --parallel` builds the Switch package with devkitPro installed.
 - `cmake --preset linux-release && cmake --build --preset linux-release` uses the supported Ninja preset for portable Linux releases.
-- `scripts/psv-dev.sh build` produces `build/psvita/Moonlight.vpk` when `VITASDK` is configured.
+- `scripts/psv-dev.sh build` produces `build/psvita/Apollo.vpk` when `VITASDK` is configured.
 
 Build directories are disposable and must remain untracked.
 

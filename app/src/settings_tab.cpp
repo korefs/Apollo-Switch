@@ -799,6 +799,44 @@ SettingsTab::SettingsTab() {
     });
     mouseSpeedSlider->setProgress(mouseProgress);
 
+    // Apollo section — always visible (this app is Apollo-focused)
+    std::vector<std::string> vdmOptions = {"Off", "Automatic", "Always"};
+    apolloVirtualDisplay->init("Virtual Display", vdmOptions,
+        static_cast<int>(Settings::instance().virtual_display_mode()),
+        [this](int index) {
+            Settings::instance().set_virtual_display_mode(
+                static_cast<VirtualDisplayMode>(index));
+            updateApolloVisibility();
+        });
+
+    // Virtual display resolution selector
+    std::vector<std::string> vdResOptions = {"Auto", "720p", "1080p", "1440p"};
+    int currentResIndex = 0;
+    int currentRes = Settings::instance().virtual_display_resolution();
+    if (currentRes == 720) currentResIndex = 1;
+    else if (currentRes == 1080) currentResIndex = 2;
+    else if (currentRes == 1440) currentResIndex = 3;
+    apolloVdResolution->init("Resolution", vdResOptions, currentResIndex,
+        [](int index) {
+            int resolutions[] = {0, 720, 1080, 1440};
+            Settings::instance().set_virtual_display_resolution(resolutions[index]);
+        });
+
+    // Virtual display refresh rate selector
+    std::vector<std::string> vdRrOptions = {"Auto (60 Hz)", "30 Hz", "60 Hz", "120 Hz"};
+    int currentRrIndex = 0;
+    int currentRr = Settings::instance().virtual_display_refresh_rate();
+    if (currentRr == 30) currentRrIndex = 1;
+    else if (currentRr == 60) currentRrIndex = 2;
+    else if (currentRr == 120) currentRrIndex = 3;
+    apolloVdRefreshRate->init("Refresh Rate", vdRrOptions, currentRrIndex,
+        [](int index) {
+            int rates[] = {0, 30, 60, 120};
+            Settings::instance().set_virtual_display_refresh_rate(rates[index]);
+        });
+
+    updateApolloVisibility();
+
     writeLog->init("settings/debugging_view"_i18n,
                    Settings::instance().write_log(), [](bool value) {
                        Settings::instance().set_write_log(value);
@@ -822,6 +860,14 @@ void SettingsTab::updateDeadZoneItems() {
         deadzoneStickRight->setDetailTextColor(Application::getTheme()["brls/text_disabled"]);
         deadzoneStickRight->setDetailText("hints/off"_i18n);
     }
+}
+
+void SettingsTab::updateApolloVisibility() {
+    bool showVdDetails = Settings::instance().virtual_display_mode() != VirtualDisplayMode::Off;
+    apolloVdResolution->setVisibility(
+        showVdDetails ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
+    apolloVdRefreshRate->setVisibility(
+        showVdDetails ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
 }
 
 SettingsTab::~SettingsTab() { Settings::instance().save(); }

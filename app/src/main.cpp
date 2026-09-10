@@ -35,7 +35,7 @@ unsigned int sceLibcHeapSize             = 24 * 1024 * 1024;
 
 #include "DiscoverManager.hpp"
 #include "MoonlightSession.hpp"
-#include "SwitchMoonlightSessionDecoderAndRenderProvider.hpp"
+#include "SwitchStreamProvider.hpp"
 
 
 #if defined(_WIN32) && defined(__SDL2__)
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
 #endif
 
     MoonlightSession::set_provider(
-            new SwitchMoonlightSessionDecoderAndRenderProvider());
+            new SwitchStreamProvider());
 
     brls::Application::createWindow("title"_i18n);
 

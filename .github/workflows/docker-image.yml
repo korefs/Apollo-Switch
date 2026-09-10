@@ -1,4 +1,4 @@
-name: Build Moonlight-Switch
+name: Build Apollo-Switch
 
 on:
   workflow_call:
@@ -36,19 +36,19 @@ jobs:
       run: cmake -B build/switch -DCMAKE_BUILD_TYPE=Release -DPLATFORM_SWITCH=ON -DUSE_DEKO3D=ON
 
     - name: Run build
-      run: make -C build/switch Moonlight.nro -j8
+      run: make -C build/switch Apollo.nro -j8
 
     - name: Rename artifact 
-      run: mv build/switch/Moonlight.nro build/switch/Moonlight-Switch.nro
+      run: mv build/switch/Apollo.nro build/switch/Apollo-Switch.nro
 
-    - name: Upload Moonlight-Switch.nro
+    - name: Upload Apollo-Switch.nro
       uses: actions/upload-artifact@master
       with:
-        name: Moonlight-Switch.nro
-        path: build/switch/Moonlight-Switch.nro
+        name: Apollo-Switch.nro
+        path: build/switch/Apollo-Switch.nro
 
-    - name: Upload Moonlight-Switch.elf
+    - name: Upload Apollo-Switch.elf
       uses: actions/upload-artifact@master
       with:
         name: Debug.elf
-        path: build/switch/Moonlight.elf
+        path: build/switch/Apollo.elf

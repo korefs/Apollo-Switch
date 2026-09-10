@@ -98,26 +98,26 @@ example:
 `--ip=192.168.1.101 --appid=1233211234 --appname=Steam`
 
 ## iOS / visionOS forwarder / deep link
-iOS and visionOS builds register the `moonlightswitch://` URL scheme. The supported deep link
+iOS and visionOS builds register the `apolloswitch://` URL scheme (with `moonlightswitch://` maintained for backward compatibility). The supported deep link
 uses the same parameters as the Switch forwarder:
 
-`moonlightswitch://launch?ip=192.168.1.101&appid=1233211234&appname=Steam`
+`apolloswitch://launch?ip=192.168.1.101&appid=1233211234&appname=Steam`
 
 `host` can be used instead of `ip` when launching by host MAC address.
 
-iOS 16+ and visionOS builds also expose Shortcuts actions. `Launch Game` accepts a Moonlight
-`Game` value. Use `Get Favorite Games` to pick from saved favorites, or
+iOS 16+ and visionOS builds also expose Shortcuts actions. `Launch Game` accepts a Game
+value. Use `Get Favorite Games` to pick from saved favorites, or
 `Create Game` to build a game manually from `Host`, `App ID`, and `App Name`,
 then pass the result to `Launch Game`. Use `Get Game Detail` to extract a
 selected game's `App ID`, `Host`, `App Name`, or `Display Host`, and `Get Game
-Deep Link` to create a `moonlightswitch://` URL from a `Game`. Favorite game rows
+Deep Link` to create an `apolloswitch://` URL from a `Game`. Favorite game rows
 use cached box art when available. `Host` accepts either a paired PC IP address
 or MAC address.
 
 Favorite apps can generate an Apple Shortcut forwarder. The forwarder action opens
 the Shortcuts editor and copies the generated deep link to the clipboard as a
-fallback. Prefer the Moonlight `Launch Game` action on iOS 16+ or visionOS, or
-add an `Open URLs` action and paste the copied `moonlightswitch://` URL on older
+fallback. Prefer the Apollo Switch `Launch Game` action on iOS 16+ or visionOS, or
+add an `Open URLs` action and paste the copied `apolloswitch://` URL on older
 iOS versions. Use Shortcuts' `Add to Home Screen` option to create the icon.
 
 ## Localization
@@ -172,7 +172,7 @@ export VITASDK=/opt/vitasdk
 scripts/psv-dev.sh build
 ```
 
-The resulting package is written to `build/psvita/Moonlight.vpk`. For installing the first VPK, deploying later builds, capturing PrincessLog output, and checking crash dumps, see the [PS Vita development guide](docs/psv-development.md).
+The resulting package is written to `build/psvita/Apollo.vpk`. For installing the first VPK, deploying later builds, capturing PrincessLog output, and checking crash dumps, see the [PS Vita development guide](docs/psv-development.md).
 
 ### PC (Windows/Linux/MacOS)
 
@@ -193,7 +193,7 @@ Also, please note that the `resources` folder must be available in the working d
 On Linux, enabling **Use hardware decoding** makes the FFmpeg decoder try
 VA-API, CUDA, and VDPAU in that order. The selected backend decodes into GPU
 surfaces and copies NV12, P010, or YUV420P frames back for the OpenGL renderer.
-If no compatible device or driver is available, Moonlight automatically falls
+If no compatible device or driver is available, Apollo Switch automatically falls
 back to software decoding.
 
 #### Linux and SteamOS releases
@@ -243,7 +243,7 @@ cmake --preset windows-ucrt64-release
 cmake --build --preset windows-ucrt64-release
 ```
 
-The resulting executable is placed in `build/windows-ucrt64`. The build stages the required MSYS2 UCRT64 DLLs beside `Moonlight.exe`; keep the generated `resources` directory there as well, because the UCRT64 build uses external resources instead of `libromfs`.
+The resulting executable is placed in `build/windows-ucrt64`. The build stages the required MSYS2 UCRT64 DLLs beside `Apollo.exe`; keep the generated `resources` directory there as well, because the UCRT64 build uses external resources instead of `libromfs`.
 
 ##### ARM64 (CLANGARM64)
 
@@ -273,7 +273,7 @@ cmake --preset windows-clangarm64-release
 cmake --build --preset windows-clangarm64-release
 ```
 
-The resulting executable is placed in `build/windows-clangarm64`. The build stages the required MSYS2 CLANGARM64 DLLs beside `Moonlight.exe`; keep the generated `resources` directory there as well, because the desktop ARM64 build also uses external resources instead of `libromfs`.
+The resulting executable is placed in `build/windows-clangarm64`. The build stages the required MSYS2 CLANGARM64 DLLs beside `Apollo.exe`; keep the generated `resources` directory there as well, because the desktop ARM64 build also uses external resources instead of `libromfs`.
 
 ### iOS / tvOS:
 

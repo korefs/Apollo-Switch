@@ -3,7 +3,7 @@
 #include "FFmpegVideoDecoderPlatformHelpers.hpp"
 #include "Settings.hpp"
 #include "borealis.hpp"
-#include "MoonlightSession.hpp"
+#include "StreamSession.hpp"
 
 #include <cstring>
 

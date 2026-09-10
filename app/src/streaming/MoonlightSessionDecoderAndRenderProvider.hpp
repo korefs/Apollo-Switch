@@ -1,11 +1,8 @@
-#include "IAudioRenderer.hpp"
-#include "IFFmpegVideoDecoder.hpp"
-#include "IVideoRenderer.hpp"
+﻿// Apollo Switch
+// MoonlightSessionDecoderAndRenderProvider.hpp
+//
+// Backward-compatibility header forwarding to IStreamSessionProvider.
+
 #pragma once
 
-class MoonlightSessionDecoderAndRenderProvider {
-  public:
-    virtual IFFmpegVideoDecoder* video_decoder() = 0;
-    virtual IVideoRenderer* video_renderer() = 0;
-    virtual IAudioRenderer* audio_renderer() = 0;
-};
+#include "IStreamSessionProvider.hpp"

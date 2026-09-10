@@ -575,6 +575,18 @@ void Settings::load() {
                                         load_stream_quality(aggregate);
                             }
                         }
+
+                        if (json_t* is_apollo = json_object_get(json, "is_apollo")) {
+                            if (json_is_true(is_apollo)) {
+                                ApolloCapabilities caps{};
+                                caps.isApollo = true;
+                                caps.virtualDisplay = true;
+                                caps.virtualDisplayResolutionControl = true;
+                                caps.virtualDisplayRefreshRateControl = true;
+                                caps.serverCommands = true;
+                                host.apolloCaps = caps;
+                            }
+                        }
                         
                         m_hosts.push_back(host);
                     }
@@ -726,6 +738,36 @@ void Settings::load() {
             if (json_t* stream_volume = json_object_get(settings, "stream_volume")) {
                 if (json_typeof(stream_volume) == JSON_INTEGER) {
                     m_volume = (int)json_integer_value(stream_volume);
+                }
+            }
+
+            if (json_t* vdm = json_object_get(settings, "virtual_display_mode")) {
+                if (json_is_integer(vdm)) {
+                    m_virtual_display_mode = static_cast<VirtualDisplayMode>(json_integer_value(vdm));
+                }
+            }
+
+            if (json_t* vdr = json_object_get(settings, "virtual_display_resolution")) {
+                if (json_is_integer(vdr)) {
+                    m_apollo.virtualDisplayResolution = (int)json_integer_value(vdr);
+                }
+            }
+
+            if (json_t* vdcw = json_object_get(settings, "virtual_display_custom_width")) {
+                if (json_is_integer(vdcw)) {
+                    m_apollo.virtualDisplayCustomWidth = (int)json_integer_value(vdcw);
+                }
+            }
+
+            if (json_t* vdch = json_object_get(settings, "virtual_display_custom_height")) {
+                if (json_is_integer(vdch)) {
+                    m_apollo.virtualDisplayCustomHeight = (int)json_integer_value(vdch);
+                }
+            }
+
+            if (json_t* vdrr = json_object_get(settings, "virtual_display_refresh_rate")) {
+                if (json_is_integer(vdrr)) {
+                    m_apollo.virtualDisplayRefreshRate = (int)json_integer_value(vdrr);
                 }
             }
             
@@ -883,6 +925,11 @@ void Settings::save() {
                         }
                         json_object_set_new(json, "stream_quality", quality);
                     }
+
+                    if (host.apolloCaps.has_value() && host.apolloCaps->isApollo) {
+                        json_object_set_new(json, "is_apollo", json_true());
+                    }
+
                     json_array_append_new(hosts, json);
                 }
             }
@@ -930,6 +977,11 @@ void Settings::save() {
             json_object_set_new(settings, "keyboard_fingers", json_integer(m_keyboard_fingers));
             json_object_set_new(settings, "overlay_system_button", json_integer((int)m_overlay_system_button));
             json_object_set_new(settings, "guide_system_button", json_integer((int)m_guide_system_button));
+            json_object_set_new(settings, "virtual_display_mode", json_integer((int)m_virtual_display_mode));
+            json_object_set_new(settings, "virtual_display_resolution", json_integer(m_apollo.virtualDisplayResolution));
+            json_object_set_new(settings, "virtual_display_custom_width", json_integer(m_apollo.virtualDisplayCustomWidth));
+            json_object_set_new(settings, "virtual_display_custom_height", json_integer(m_apollo.virtualDisplayCustomHeight));
+            json_object_set_new(settings, "virtual_display_refresh_rate", json_integer(m_apollo.virtualDisplayRefreshRate));
 
             save_button_array(settings, "overlay_buttons",
                               m_overlay_options.buttons);
