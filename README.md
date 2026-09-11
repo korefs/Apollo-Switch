@@ -46,6 +46,26 @@ Accept [invite for TestFlight](https://testflight.apple.com/join/P9EX5vQ5) and d
 ## Discord
 Feel free to join the [Moonlight Discord server](https://discord.gg/fmtcVPzaG4) — you can find help in the "switch-help" channel. An Apollo Switch–specific channel may be available in the future.
 
+## Apollo Enhancements
+
+Apollo Switch is heavily focused on providing the best experience with **Apollo / Sunshine** servers, unlocking host capabilities seamlessly from the Switch client:
+
+*   **Virtual Display Integration:** Easily request custom virtual displays right from the client.
+    *   Set **Resolution** (`720p`, `1080p`, `1440p`, etc.) and **Refresh Rate** directly in the client settings.
+    *   **Automatic Mode** automatically adjusts the requested resolution depending on the Switch's state: Handheld (`720p`) or Docked (`1080p`).
+
+*(Note: While Apollo Switch requests these Virtual Display parameters, the actual task of setting the virtual display as the main screen and disconnecting physical monitors must be configured on the host PC using Sunshine scripts or native tools).*
+
+## Roadmap (Future Ideas)
+
+We are constantly thinking of new ways to leverage the Switch and Apollo Server ecosystem. Some of the features we might explore in the future include:
+
+*   **Custom Server Commands UI:** A dedicated panel in the app overlay to trigger scripts directly on your host PC (e.g., "Reset Audio Driver", "Turn off physical monitors", or "Launch specific emulator"), utilizing Apollo's capability extensions.
+*   **Contextual Profiles (Docked vs. Handheld):** Going beyond just changing resolutions! Automatically swapping bitrate limits, codec choices, and controller button mappings the moment you drop the Switch into the dock.
+*   **Advanced Motion (Gyro) Integration:** A dedicated UI to calibrate and fine-tune the Switch's native gyroscope to send 1:1 motion data to PC emulators (like Cemu/Yuzu/Dolphin) via Sunshine's DS4 emulation.
+*   **Adaptive Bitrate Optimization:** Real-time stream monitoring that smoothly scales down bitrate during Wi-Fi drops to prevent freezes, then scales back up when the connection stabilizes.
+*   **Fast Host-Switching:** A quick menu in the overlay to seamlessly jump between multiple configured PCs/servers without needing to close your current streaming session first.
+
 ## Controls
 ### Mouse
 With touch screen you can move your coursor, tap to left click, scroll 2 fingers to scroll.
@@ -131,8 +151,8 @@ iOS versions. Use Shortcuts' `Add to Home Screen` option to create the icon.
 
 ### Contribution
 If you'd like to improve existing language, or add a new one, follow the instruction:
-1. Ask a permission to modify language [here](https://poeditor.com/join/project?hash=9kiCIvN0dc)
-2. Notify me by [creating an issue](https://github.com/XITRIX/Moonlight-Switch/issues/new) with title "[Localization] - {Name of language}", in description write your nickname on POEditor
+1. Ask a permission to modify language [soon](https://google.com)
+2. Notify me by [creating an issue](https://github.com/korefs/Apollo-Switch/issues/new) with title "[Localization] - {Name of language}", in description write your nickname on POEditor
 3. After translation is done, notify me in issue created earlier
 
 You have 2 options to add that translation:
@@ -150,7 +170,7 @@ If you'd like to test your translation, you could follow build instructions, or 
 cd 'folder/to/store/the/sources'
 
 # Clone this repo with submodules
-git clone https://github.com/your-org/Apollo-Switch.git --recursive
+git clone https://github.com/korefs/Apollo-Switch.git --recursive
 cd Apollo-Switch
 ```
 

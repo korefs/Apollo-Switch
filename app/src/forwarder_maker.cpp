@@ -1337,7 +1337,7 @@ void blendBadgePixel(std::vector<u8>& canvas, size_t canvas_offset, const std::v
 }
 
 void overlayMoonlightBadge(std::vector<u8>& rgba, int width, int height) {
-    auto badge_bytes = readFileBytes("romfs:/img/moonlight_96.png");
+    auto badge_bytes = readFileBytes("romfs:/img/apollo_96.png");
     if (badge_bytes.empty()) {
         return;
     }

@@ -22,7 +22,7 @@
             <brls:Image
                 width="auto"
                 height="160"
-                image="@res/img/moonlight_store_logo.png"
+                image="@res/img/apollo_store_logo.png"
                 scalingType="fit"/>
 
             <brls:Header

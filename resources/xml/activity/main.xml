@@ -4,5 +4,5 @@
     <MainTabs
         id="main_tabs"
         title="@i18n/title"
-        icon="@res/img/moonlight_96.png" />
+        icon="@res/img/apollo_96.png" />
 </brls:AppletFrame>

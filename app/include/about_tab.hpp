@@ -18,6 +18,4 @@ class AboutTab : public brls::Box {
   private:
     BRLS_BIND(brls::Header, versionLabel, "version_label");
     BRLS_BIND(LinkCell, github, "github");
-    BRLS_BIND(LinkCell, patreon, "patreon");
-    BRLS_BIND(LinkCell, gbatemp, "gbatemp");
 };

@@ -75,8 +75,8 @@ set(VERSION_BUILD "0")
 set(PACKAGE_NAME "com.apollo.switch")
 set(PSN_TITLE_ID  "APLO00000")
 set(PSN_VERSION  "01.00")
-set(PROJECT_AUTHOR "Apollo Switch Contributors")
-set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/img/moonlight_icon.jpg)
+set(PROJECT_AUTHOR "kore")
+set(PROJECT_ICON ${CMAKE_CURRENT_SOURCE_DIR}/resources/img/apollo_icon.jpg)
 set(PROJECT_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 
 if (PLATFORM_DESKTOP AND CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT USE_LIBROMFS)
@@ -201,6 +201,7 @@ file(GLOB MAIN_SRC CONFIGURE_DEPENDS
     app/src/*.cpp
     app/src/crypto/*.cpp
     app/src/gestures/*.cpp
+    app/src/integrations/apollo/*.cpp
     app/src/keyboards/*.cpp
     app/src/libgamestream/*.cpp
     app/src/platform/switch/*.cpp
@@ -479,8 +480,11 @@ endif ()
 target_include_directories(${PROJECT_NAME} PUBLIC
         app/include
         app/include/gestures
+        app/include/settings
+        app/src
         app/src/crypto
         app/src/gestures
+        app/src/integrations/apollo
         app/src/keyboards
         app/src/libgamestream
         app/src/platform/switch
@@ -757,7 +761,7 @@ if (PLATFORM_DESKTOP AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
         DESTINATION "${CMAKE_INSTALL_DATADIR}/applications"
         COMPONENT Runtime)
     install(FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/resources/img/moonlight_96.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/resources/img/apollo_96.png"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/96x96/apps"
         RENAME "ru.xitrix.Moonlight.png"
         COMPONENT Runtime)

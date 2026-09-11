@@ -167,7 +167,7 @@ fi
 linuxdeploy_args=(
     --appdir "$app_dir"
     --desktop-file "${repo_root}/app/platforms/linux/ru.xitrix.Moonlight.desktop"
-    --icon-file "${repo_root}/resources/img/moonlight_96.png"
+    --icon-file "${repo_root}/resources/img/apollo_96.png"
     --icon-filename "ru.xitrix.Moonlight"
     --custom-apprun "${repo_root}/app/platforms/linux/AppRun"
     --exclude-library "libGL.so*"
@@ -286,7 +286,7 @@ if has_format deb; then
     install -m0644 \
         "${repo_root}/app/platforms/linux/ru.xitrix.Moonlight.desktop" \
         "${deb_root}/usr/share/applications/ru.xitrix.Moonlight.desktop"
-    install -m0644 "${repo_root}/resources/img/moonlight_96.png" \
+    install -m0644 "${repo_root}/resources/img/apollo_96.png" \
         "${deb_root}/usr/share/icons/hicolor/96x96/apps/ru.xitrix.Moonlight.png"
     install -m0644 \
         "${app_dir}/usr/share/metainfo/ru.xitrix.Moonlight.metainfo.xml" \
