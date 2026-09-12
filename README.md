@@ -1,5 +1,7 @@
 # Apollo Switch
 
+# Under development, many things will change :)
+
 Apollo Switch is a Nintendo Switch streaming client designed primarily for
 [Apollo](https://github.com/ClassicOldSong/Apollo) (Sunshine-based) servers,
 while remaining fully compatible with standard Moonlight/GameStream hosts.
