@@ -1,8 +1,8 @@
 // Apollo Switch
 // tests/profile_precedence_test.cpp
 //
-// Unit tests for the composable 5-layer profile system precedence rules:
-//   Session Override > Host Profile > Network Defaults > Device Defaults > Global Defaults
+// Unit tests for the composable profile system precedence rules:
+//   Session > Host > Contextual Device > Network > Device Defaults > Global
 
 #include "StreamProfile.hpp"
 #include "DeviceProfile.hpp"
@@ -32,12 +32,13 @@ EffectiveStreamProfile testResolve(
     const MockHost& host,
     std::optional<StreamProfileContext> context,
     DeviceMode deviceMode,
+    const std::optional<ContextualDeviceProfile>& contextualProfile = std::nullopt,
     const std::optional<StreamProfile>& sessionOverride = std::nullopt) {
 
-    // Layer 5: Baseline (Global Defaults)
+    // Layer 6: Baseline (Global Defaults)
     EffectiveStreamProfile resolved = baseline;
 
-    // Layer 4: Device Profile Defaults
+    // Layer 5: Device Profile Defaults
     if (deviceMode != DeviceMode::Unknown) {
         StreamProfile dev = DeviceProfile::forMode(deviceMode);
         if (dev.resolution) resolved.resolution = *dev.resolution;
@@ -45,11 +46,16 @@ EffectiveStreamProfile testResolve(
         resolved.deviceMode = deviceMode;
     }
 
-    // Layer 3: Network Profile Defaults
+    // Layer 4: Network Profile Defaults
     if (context) {
         StreamProfile net = NetworkProfile::forContext(*context);
         if (net.bitrate) resolved.bitrate = *net.bitrate;
         if (net.fps) resolved.fps = *net.fps;
+    }
+
+    // Layer 3: Contextual Device Profile. This uses the production helper.
+    if (deviceMode != DeviceMode::Unknown && contextualProfile) {
+        apply_contextual_device_profile(resolved, *contextualProfile);
     }
 
     // Layer 2: Host Profile Override
@@ -154,12 +160,106 @@ void testPrecedenceChain() {
     sessionOverride.resolution = 1440;
     sessionOverride.videoCodec = VideoCodec::AV1;
 
-    auto res5 = testResolve(baseline, host, StreamProfileContext::LocalEthernet, DeviceMode::Docked, sessionOverride);
+    auto res5 = testResolve(baseline, host, StreamProfileContext::LocalEthernet,
+                            DeviceMode::Docked, std::nullopt, sessionOverride);
     assert(res5.resolution == 1440);          // overridden by Session Override
     assert(res5.bitrate == 50000);           // overridden by Session Override
     assert(res5.videoCodec == VideoCodec::AV1); // overridden by Session Override
 
     std::cout << "[PASS] testPrecedenceChain\n";
+}
+
+void testContextualDeviceProfiles() {
+    EffectiveStreamProfile baseline;
+    baseline.bitrate = 10000;
+    baseline.videoCodec = H264;
+    baseline.mappingLayout = 0;
+
+    MockHost host;
+    ContextualDeviceProfile handheld;
+    handheld.enabled = true;
+    handheld.bitrate = 18000;
+    handheld.videoCodec = H265;
+    handheld.mappingLayout = 1;
+
+    auto resolved = testResolve(baseline, host, StreamProfileContext::LocalWifi,
+                                DeviceMode::Handheld, handheld);
+    assert(resolved.bitrate == 18000);
+    assert(resolved.videoCodec == H265);
+    assert(resolved.mappingLayout == 1);
+    assert(resolved.contextualDeviceProfileApplied);
+
+    ContextualDeviceProfile docked;
+    docked.enabled = true;
+    docked.bitrate = 34000;
+    docked.videoCodec = AV1;
+    docked.mappingLayout = 0;
+    resolved = testResolve(baseline, MockHost{}, StreamProfileContext::LocalEthernet,
+                           DeviceMode::Docked, docked);
+    assert(resolved.bitrate == 34000);
+    assert(resolved.videoCodec == AV1);
+    assert(resolved.mappingLayout == 0);
+
+    ContextualDeviceProfile codecOnly;
+    codecOnly.enabled = true;
+    codecOnly.videoCodec = H265;
+    resolved = testResolve(baseline, MockHost{}, StreamProfileContext::LocalWifi,
+                           DeviceMode::Handheld, codecOnly);
+    assert(resolved.bitrate == 15000);
+    assert(resolved.videoCodec == H265);
+    assert(resolved.mappingLayout == 0);
+
+    // Host settings override stream settings but intentionally do not replace
+    // the contextual controller layout.
+    StreamProfile hostOverride;
+    hostOverride.enabled = true;
+    hostOverride.bitrate = 22000;
+    hostOverride.videoCodec = AV1;
+    host.streamProfiles[StreamProfileContext::LocalWifi] = hostOverride;
+    resolved = testResolve(baseline, host, StreamProfileContext::LocalWifi,
+                           DeviceMode::Handheld, handheld);
+    assert(resolved.bitrate == 22000);
+    assert(resolved.videoCodec == AV1);
+    assert(resolved.mappingLayout == 1);
+
+    StreamProfile sessionOverride;
+    sessionOverride.enabled = true;
+    sessionOverride.bitrate = 26000;
+    sessionOverride.videoCodec = H264;
+    resolved = testResolve(baseline, host, StreamProfileContext::LocalWifi,
+                           DeviceMode::Handheld, handheld, sessionOverride);
+    assert(resolved.bitrate == 26000);
+    assert(resolved.videoCodec == H264);
+    assert(resolved.mappingLayout == 1);
+
+    ContextualDeviceProfile disabled = handheld;
+    disabled.enabled = false;
+    resolved = testResolve(baseline, MockHost{}, StreamProfileContext::LocalWifi,
+                           DeviceMode::Docked, disabled);
+    assert(resolved.bitrate == 15000);
+    assert(resolved.videoCodec == H264);
+    assert(resolved.mappingLayout == 0);
+    assert(!resolved.contextualDeviceProfileApplied);
+
+    // Unknown mode must not apply a contextual profile.
+    resolved = testResolve(baseline, MockHost{}, std::nullopt,
+                           DeviceMode::Unknown, handheld);
+    assert(resolved.bitrate == 10000);
+    assert(resolved.videoCodec == H264);
+    assert(resolved.mappingLayout == 0);
+
+    ContextualDeviceProfile invalid;
+    invalid.enabled = true;
+    invalid.bitrate = 100001;
+    invalid.videoCodec = static_cast<VideoCodec>(99);
+    invalid.mappingLayout = -1;
+    resolved = baseline;
+    apply_contextual_device_profile(resolved, invalid);
+    assert(resolved.bitrate == 10000);
+    assert(resolved.videoCodec == H264);
+    assert(resolved.mappingLayout == 0);
+
+    std::cout << "[PASS] testContextualDeviceProfiles\n";
 }
 
 void testVirtualDisplayConfig() {
@@ -256,6 +356,7 @@ int main() {
     testDeviceDefaults();
     testNetworkDefaults();
     testPrecedenceChain();
+    testContextualDeviceProfiles();
     testVirtualDisplayConfig();
     testApolloCapabilities();
     testStreamInterfaces();

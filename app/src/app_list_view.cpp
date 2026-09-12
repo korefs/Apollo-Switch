@@ -29,7 +29,9 @@ AppListView::AppListView(const Host& host) : host(host) {
     getAppletFrameItem()->setHintView(hintView);
 
     container->setHideHighlight(true);
-    gridView = new GridView();
+    // Five substantial cards remain readable in handheld mode while still
+    // feeling like a game library on a TV.
+    gridView = new GridView(5);
     container->addView(gridView);
     loader = new LoadingOverlay(this);
 

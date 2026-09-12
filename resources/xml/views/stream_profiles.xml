@@ -19,11 +19,14 @@
             paddingBottom="@style/brls/tab_details/padding_bottom"
             paddingLeft="@style/brls/tab_details/padding_left">
 
-            <brls:Header title="@i18n/stream_profiles/title"/>
+            <brls:Header
+                title="@i18n/stream_profiles/title"
+                subtitle="Choose a connection context, then adjust only what needs to differ."
+                lineBottom="0"/>
             <brls:DetailCell id="local_wifi"/>
             <brls:DetailCell id="local_ethernet"/>
             <brls:DetailCell id="remote"/>
-            <brls:Header id="summary" paddingTop="30"/>
+            <brls:Header id="summary" paddingTop="@style/apollo/space_l"/>
             <brls:BooleanCell id="enabled"/>
             <brls:SelectorCell id="fps"/>
             <brls:SelectorCell id="resolution"/>

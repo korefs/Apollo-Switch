@@ -181,15 +181,7 @@ void MappingLayoutEditor::removeLayout() {
         new Dialog("mapping_layout_editor/remove_dialog_title"_i18n);
     dialog->addButton("common/cancel"_i18n, []() {});
     dialog->addButton("common/remove"_i18n, [this]() {
-        int current = Settings::instance().get_current_mapping_layout();
-        if (this->layoutNumber == current) {
-            Settings::instance().set_current_mapping_layout(0);
-        } else if (this->layoutNumber < current) {
-            Settings::instance().set_current_mapping_layout(current - 1);
-        }
-
-        auto layouts = Settings::instance().get_mapping_laouts();
-        layouts->erase(layouts->begin() + layoutNumber);
+        Settings::instance().remove_mapping_layout(layoutNumber);
 
         dismiss();
     });

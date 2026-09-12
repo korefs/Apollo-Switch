@@ -19,7 +19,17 @@ const std::string loadingOverlayXML = R"xml(
         id="progress"
         size="large"
         width="92"
-        height="92"/>
+        height="92"
+        marginBottom="20"/>
+
+    <brls:Label
+        id="message"
+        width="auto"
+        height="auto"
+        fontSize="22"
+        horizontalAlign="center"
+        textColor="@theme/apollo/secondary"
+        text="Connecting"/>
 
 </brls:Box>
 )xml";
@@ -44,4 +54,8 @@ void LoadingOverlay::layout() {
 void LoadingOverlay::setHidden(bool hide) {
     setAlpha(hide ? 0 : 1);
     progress->animate(!hide);
+}
+
+void LoadingOverlay::setMessage(const std::string& value) {
+    message->setText(value);
 }

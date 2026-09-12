@@ -1,15 +1,11 @@
-<brls:Box
-    width="auto"
-    height="auto">
-
+<brls:Box width="auto" height="auto">
     <brls:ScrollingFrame
         width="auto"
         height="auto"
         axis="column"
-        scrollingBehavior="centered"
         alignItems="stretch"
-        grow="1.0" >
-        
+        scrollingBehavior="centered"
+        grow="1.0">
         <brls:Box
             id="container"
             width="10000"
@@ -20,7 +16,5 @@
             paddingRight="@style/apollo/space_l"
             paddingBottom="@style/apollo/space_xl"
             paddingLeft="@style/apollo/space_l" />
-        
     </brls:ScrollingFrame>
-
 </brls:Box>

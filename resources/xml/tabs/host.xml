@@ -21,10 +21,23 @@
             
             <brls:Header
                 id="header"
-                title="Status: Unactive"/>
+                title="Host"
+                paddingBottom="@style/apollo/space_s"/>
+
+            <brls:Header
+                title="PLAY"
+                lineBottom="0"
+                paddingTop="@style/apollo/space_m"/>
                 
             <brls:DetailCell
-                id="connect"/>
+                id="connect"
+                backgroundColor="@theme/apollo/surface"
+                cornerRadius="@style/apollo/card_radius"/>
+
+            <brls:Header
+                title="HOST SETTINGS"
+                lineBottom="0"
+                paddingTop="@style/apollo/space_l"/>
 
             <brls:DetailCell
                 id="stream_profiles"/>
@@ -32,7 +45,7 @@
             <brls:DetailCell
                 id="remove"
                 lineTop="1px"
-                marginTop="24"/>
+                marginTop="@style/apollo/space_m"/>
                   
         </brls:Box>
 

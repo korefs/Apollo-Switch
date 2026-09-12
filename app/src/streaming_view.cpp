@@ -77,6 +77,9 @@ StreamingView::StreamingView(const Host& host, const AppInfo& app) : host(host),
     setFocusable(true);
     setHideHighlight(true);
     loader = new LoadingOverlay(this);
+    loader->setMessage("Connecting to " +
+                       (host.hostname.empty() ? host.preferred_address()
+                                              : host.hostname));
 
     keyboardHolder = new Box(Axis::COLUMN);
     keyboardHolder->detach();
@@ -130,6 +133,9 @@ StreamingView::StreamingView(const Host& host, const AppInfo& app) : host(host),
             }
 
             session->set_stream_settings(streamSettings);
+            MoonlightInputManager::instance().reloadButtonMappingLayout(
+                streamSettings.mappingLayout);
+            loader->setMessage("Starting stream");
             if (streamSettings.context) {
                 Logger::info(
                     "Streaming profile: {} / {} ({})",
@@ -141,6 +147,14 @@ StreamingView::StreamingView(const Host& host, const AppInfo& app) : host(host),
                     StreamProfileResolver::deviceModeName(streamSettings.deviceMode),
                     "no network context");
             }
+            Logger::info(
+                "Streaming settings: mode={}, bitrate={} kbps, codec={}, layout={} ({})",
+                StreamProfileResolver::deviceModeName(streamSettings.deviceMode),
+                streamSettings.bitrate, getVideoCodecName(streamSettings.videoCodec),
+                streamSettings.mappingLayout,
+                streamSettings.contextualDeviceProfileApplied
+                    ? "contextual profile applied"
+                    : "contextual defaults inherited");
 
             ASYNC_RETAIN
             session->start([ASYNC_TOKEN](GSResult<bool> result) {
@@ -152,8 +166,6 @@ StreamingView::StreamingView(const Host& host, const AppInfo& app) : host(host),
                 }
             }, result.value().isSunshine());
         });
-
-    MoonlightInputManager::instance().reloadButtonMappingLayout();
 
     static bool lMouseKeyGate = false;
     static bool lMouseKeyUsed = false;
@@ -365,7 +377,30 @@ void StreamingView::draw(NVGcontext* vg, float x, float y, float width,
 #endif
     }
 
-    if (draw_stats) {
+    if (statsMode == StreamStatsMode::Compact) {
+        auto stats = session->session_stats();
+        const auto now = std::chrono::steady_clock::now();
+        if (compactStatsText.empty() ||
+            now - compactStatsUpdatedAt >= std::chrono::milliseconds(250)) {
+            compactStatsText = fmt::format(
+                "{:.0f} FPS  •  {:.1f} ms decode",
+                stats->video_render_stats.rendered_fps,
+                stats->video_decode_stats.current_decoding_time);
+            compactStatsUpdatedAt = now;
+        }
+
+        nvgBeginPath(vg);
+        nvgRoundedRect(vg, 28, 28, 310, 48, 12);
+        nvgFillColor(vg, nvgRGBA(8, 12, 20, 220));
+        nvgFill(vg);
+        nvgFontFaceId(vg, Application::getFont(FONT_REGULAR));
+        nvgFontSize(vg, 18);
+        nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+        nvgFillColor(vg, nvgRGBA(255, 255, 255, 255));
+        nvgText(vg, 44, 52, compactStatsText.c_str(), nullptr);
+    }
+
+    if (statsMode == StreamStatsMode::Detailed) {
         auto stats = session->session_stats();
 
         auto statistics = fmt::format(
@@ -473,6 +508,9 @@ void StreamingView::terminate(bool terminateApp) {
         return;
     terminated = true;
 
+    MoonlightInputManager::instance().setInputEnabled(false);
+    MoonlightInputManager::instance().dropInput();
+    MoonlightInputManager::instance().reloadButtonMappingLayout();
     session->stop(terminateApp);
 
     int controllersCount = Application::getPlatform()->getInputManager()->getControllersConnectedCount();
@@ -641,6 +679,9 @@ StreamingView::~StreamingView() {
         ->getInputManager()
         ->getKeyboardKeyStateChanged()
         ->unsubscribe(keysSubscription);
+    MoonlightInputManager::instance().setInputEnabled(false);
+    MoonlightInputManager::instance().dropInput();
+    MoonlightInputManager::instance().reloadButtonMappingLayout();
     session->stop(false);
     delete session;
 }

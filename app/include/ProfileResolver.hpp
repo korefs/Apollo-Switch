@@ -1,12 +1,13 @@
 ﻿// Apollo Switch
 // ProfileResolver.hpp
 //
-// Composable Profile Resolver with 5-layer precedence model:
+// Composable Profile Resolver with precedence model:
 //   1. Session manual override
 //   2. Host profile override (host.streamProfiles[context])
-//   3. Network profile defaults (WiFi: 15 Mbps / Ethernet: 35 Mbps / Remote: 10 Mbps)
-//   4. Device profile defaults (Handheld: 720p 60fps / Docked: 1080p 60fps)
-//   5. Global defaults (Settings)
+//   3. Contextual device profile (Handheld or Docked)
+//   4. Network profile defaults (WiFi: 15 Mbps / Ethernet: 35 Mbps / Remote: 10 Mbps)
+//   5. Device profile defaults (Handheld: 720p 60fps / Docked: 1080p 60fps)
+//   6. Global defaults (Settings)
 
 #pragma once
 

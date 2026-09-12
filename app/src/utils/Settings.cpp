@@ -163,10 +163,39 @@ StreamProfile load_stream_profile(json_t* json) {
     return profile;
 }
 
+ContextualDeviceProfile load_contextual_device_profile(json_t* json) {
+    ContextualDeviceProfile profile;
+    if (!json_is_object(json))
+        return profile;
+
+    profile.enabled = optional_boolean(json, "enabled").value_or(false);
+    profile.bitrate = optional_integer(json, "bitrate");
+    if (profile.bitrate && (*profile.bitrate < 500 || *profile.bitrate > 100000))
+        profile.bitrate.reset();
+    if (const auto codec = optional_integer(json, "video_codec")) {
+        if (*codec == H264 || *codec == H265 || *codec == AV1)
+            profile.videoCodec = static_cast<VideoCodec>(*codec);
+    }
+    profile.mappingLayout = optional_integer(json, "mapping_layout");
+    if (profile.mappingLayout && *profile.mappingLayout < 0)
+        profile.mappingLayout.reset();
+    return profile;
+}
+
 void set_optional_integer(json_t* json, const char* key,
                           const std::optional<int>& value) {
     if (value)
         json_object_set_new(json, key, json_integer(*value));
+}
+
+json_t* save_contextual_device_profile(const ContextualDeviceProfile& profile) {
+    json_t* json = json_object();
+    json_object_set_new(json, "enabled", profile.enabled ? json_true() : json_false());
+    set_optional_integer(json, "bitrate", profile.bitrate);
+    if (profile.videoCodec)
+        json_object_set_new(json, "video_codec", json_integer(*profile.videoCodec));
+    set_optional_integer(json, "mapping_layout", profile.mappingLayout);
+    return json;
 }
 
 void set_optional_number(json_t* json, const char* key,
@@ -335,6 +364,77 @@ void Settings::set_stream_quality_aggregate(
         existing->streamQuality[context] = aggregate;
         save();
     }
+}
+
+const ContextualDeviceProfile& Settings::device_profile(DeviceMode mode) const {
+    static const ContextualDeviceProfile empty;
+    switch (mode) {
+    case DeviceMode::Handheld:
+        return m_handheld_device_profile;
+    case DeviceMode::Docked:
+        return m_docked_device_profile;
+    case DeviceMode::Unknown:
+        return empty;
+    }
+    return empty;
+}
+
+bool Settings::has_mapping_layout(int index) const {
+    return index >= 0 && static_cast<size_t>(index) < m_mapping_laouts.size();
+}
+
+void Settings::set_device_profile(DeviceMode mode,
+                                  const ContextualDeviceProfile& value,
+                                  bool persist) {
+    ContextualDeviceProfile profile = value;
+    if (profile.bitrate && (*profile.bitrate < 500 || *profile.bitrate > 100000))
+        profile.bitrate.reset();
+    if (profile.videoCodec && (*profile.videoCodec != H264 &&
+                               *profile.videoCodec != H265 &&
+                               *profile.videoCodec != AV1))
+        profile.videoCodec.reset();
+    if (profile.mappingLayout && !has_mapping_layout(*profile.mappingLayout))
+        profile.mappingLayout.reset();
+
+    switch (mode) {
+    case DeviceMode::Handheld:
+        m_handheld_device_profile = profile;
+        break;
+    case DeviceMode::Docked:
+        m_docked_device_profile = profile;
+        break;
+    case DeviceMode::Unknown:
+        return;
+    }
+    if (persist)
+        save();
+}
+
+void Settings::remove_mapping_layout(int index, bool persist) {
+    // The first two layouts are built-in and are never removable.
+    if (index < 2 || !has_mapping_layout(index))
+        return;
+
+    auto adjustProfile = [index](ContextualDeviceProfile& profile) {
+        if (!profile.mappingLayout)
+            return;
+        if (*profile.mappingLayout == index)
+            profile.mappingLayout.reset();
+        else if (*profile.mappingLayout > index)
+            --*profile.mappingLayout;
+    };
+    adjustProfile(m_handheld_device_profile);
+    adjustProfile(m_docked_device_profile);
+
+    const int current = get_current_mapping_layout();
+    if (current == index)
+        m_current_mapping_layout = 0;
+    else if (current > index)
+        m_current_mapping_layout = current - 1;
+
+    m_mapping_laouts.erase(m_mapping_laouts.begin() + index);
+    if (persist)
+        save();
 }
 
 void Settings::remove_host(const Host& host) {
@@ -813,6 +913,15 @@ void Settings::load() {
                 }
             }
 
+            if (json_t* device_profiles =
+                    json_object_get(settings, "device_profiles");
+                json_is_object(device_profiles)) {
+                m_handheld_device_profile = load_contextual_device_profile(
+                    json_object_get(device_profiles, "handheld"));
+                m_docked_device_profile = load_contextual_device_profile(
+                    json_object_get(device_profiles, "docked"));
+            }
+
             if (json_t* keyboard_type = json_object_get(settings, "keyboard_type")) {
                 if (json_typeof(keyboard_type) == JSON_INTEGER) {
                     m_keyboard_type = (KeyboardType)json_integer_value(keyboard_type);
@@ -879,6 +988,15 @@ void Settings::load() {
                 }
             }
         }
+
+        // Custom layouts are loaded after settings, so check references only
+        // after the complete layout list is available.
+        if (m_handheld_device_profile.mappingLayout &&
+            !has_mapping_layout(*m_handheld_device_profile.mappingLayout))
+            m_handheld_device_profile.mappingLayout.reset();
+        if (m_docked_device_profile.mappingLayout &&
+            !has_mapping_layout(*m_docked_device_profile.mappingLayout))
+            m_docked_device_profile.mappingLayout.reset();
         
         json_decref(root);
     }
@@ -973,6 +1091,14 @@ void Settings::save() {
             json_object_set_new(settings, "deadzone_stick_right", json_integer(int(m_deadzone_stick_right * 100.f)));
             json_object_set_new(settings, "rumble_force", json_integer(m_rumble_force));
             json_object_set_new(settings, "current_mapping_layout", json_integer(m_current_mapping_layout));
+            json_t* device_profiles = json_object();
+            json_object_set_new(device_profiles, "handheld",
+                                save_contextual_device_profile(
+                                    m_handheld_device_profile));
+            json_object_set_new(device_profiles, "docked",
+                                save_contextual_device_profile(
+                                    m_docked_device_profile));
+            json_object_set_new(settings, "device_profiles", device_profiles);
             json_object_set_new(settings, "keyboard_type", json_integer(m_keyboard_type));
             json_object_set_new(settings, "keyboard_fingers", json_integer(m_keyboard_fingers));
             json_object_set_new(settings, "overlay_system_button", json_integer((int)m_overlay_system_button));
@@ -1036,8 +1162,8 @@ void Settings::loadBaseLayouts() {
     m_mapping_laouts.push_back(swapLayout);
 }
 
-int Settings::get_current_mapping_layout() {
-    if (m_current_mapping_layout >= m_mapping_laouts.size())
+int Settings::get_current_mapping_layout() const {
+    if (!has_mapping_layout(m_current_mapping_layout))
         return 0;
     return m_current_mapping_layout;
 }

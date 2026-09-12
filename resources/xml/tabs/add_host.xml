@@ -20,7 +20,9 @@
             paddingLeft="@style/brls/tab_details/padding_left">
             
             <brls:Header
-                title="@i18n/add_host/manual"/>
+                title="@i18n/add_host/manual"
+                subtitle="Enter an address or choose a PC found on your network."
+                lineBottom="0"/>
             
             <brls:InputCell
                 id="hostIP"/>

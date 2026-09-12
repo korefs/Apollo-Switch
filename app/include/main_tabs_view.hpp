@@ -8,6 +8,7 @@
 #pragma once
 
 #include "favorite_tab.hpp"
+#include "host_list_view.hpp"
 #include <Singleton.hpp>
 #include <borealis.hpp>
 
@@ -30,4 +31,5 @@ class MainTabs : public brls::TabFrame {
     inline static MainTabs* instanse;
 
     FavoriteTab* favoriteTab;
+    HostListView* hostListView;
 };

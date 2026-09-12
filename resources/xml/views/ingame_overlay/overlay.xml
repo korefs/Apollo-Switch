@@ -6,9 +6,10 @@
     
     <brls:AppletFrame
         id="applet"
-        width="80%"
+        width="86%"
         height="auto"
-        backgroundColor="@theme/brls/background">
+        backgroundColor="@theme/apollo/surface"
+        cornerRadius="@style/apollo/card_radius">
         
         <brls:TabFrame>
             

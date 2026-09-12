@@ -1,11 +1,12 @@
 <brls:Box
-    width="150"
-    height="200"
+    width="170"
+    height="230"
     axis="column"
     alignItems="stretch"
     focusable="true"
-    cornerRadius="12"
-    highlightCornerRadius="15">
+    cornerRadius="@style/apollo/card_radius"
+    highlightCornerRadius="20"
+    backgroundColor="@theme/apollo/surface">
 
     <brls:Image
         id="image"
@@ -13,14 +14,14 @@
         height="auto"
         grow="1"
         scalingType="fill"
-        cornerRadius="12"
+        cornerRadius="@style/apollo/card_radius"
         backgroundColor="#00000030"/>
 
     <brls:Box
         detachedX="0"
         detachedY="0"
-        width="142"
-        height="200"
+        width="162"
+        height="230"
         axis="column"
         direction="rightToLeft"
         justifyContent="flexStart"
@@ -49,16 +50,16 @@
         id="unactive_layer"
         detachedX="0"
         detachedY="0"
-        width="150"
-        height="200"
+        width="170"
+        height="230"
         color="#4A4A4AA0"
-        cornerRadius="12"/>
+        cornerRadius="@style/apollo/card_radius"/>
 
     <brls:Box
         detachedX="0"
         detachedY="0"
-        width="150"
-        height="200"
+        width="170"
+        height="230"
         axis="column"
         justifyContent="flexEnd">
 
@@ -70,14 +71,14 @@
             justifyContent="center"
             backgroundColor="@theme/brls/backdrop"
             padding="8"
-            cornerRadius="12">
+            cornerRadius="@style/apollo/card_radius">
 
             <brls:Label
                 id="title"
                 width="auto"
                 height="auto"
                 horizontalAlign="center"
-                fontSize="12"/>
+                fontSize="16"/>
 
         </brls:Box>
 

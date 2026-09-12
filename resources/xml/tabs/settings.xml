@@ -20,7 +20,9 @@
             paddingLeft="@style/brls/tab_details/padding_left">
             
             <brls:Header
-                title="@i18n/settings/global_defaults"/>
+                title="@i18n/settings/global_defaults"
+                subtitle="These defaults apply unless a host profile overrides them."
+                lineBottom="0"/>
                 
             <brls:SelectorCell
                 id="fps"/>
@@ -34,8 +36,16 @@
             <brls:SelectorCell
                 id="codec"/>
 
+            <brls:DetailCell
+                id="contextual_profiles"/>
+
             <brls:BooleanCell
                 id="request_hdr"/>
+
+            <brls:Header
+                title="ADVANCED VIDEO"
+                subtitle="Decoder and presentation options."
+                paddingTop="@style/apollo/space_l"/>
                 
             <brls:SelectorCell
                 id="decoder"/>
@@ -78,6 +88,7 @@
             
             <brls:Header
                 title="@i18n/settings/stream_settings"
+                subtitle="Audio and host playback preferences."
                 paddingTop="60"/>
 
             <brls:SelectorCell

@@ -188,9 +188,13 @@ void StreamInputManager::sendRelativeMouseMove(brls::Point offset) {
     LiSendMouseMoveEvent(deltaX, deltaY);
 }
 
-void StreamInputManager::reloadButtonMappingLayout() {
+void StreamInputManager::reloadButtonMappingLayout(int layoutIndex) {
+    const int selectedLayout =
+        Settings::instance().has_mapping_layout(layoutIndex)
+            ? layoutIndex
+            : Settings::instance().get_current_mapping_layout();
     KeyMappingLayout layout = (*Settings::instance().get_mapping_laouts())
-        [Settings::instance().get_current_mapping_layout()];
+        [selectedLayout];
     for (int i = 0; i < _BUTTON_MAX; i++) {
         if (layout.mapping.count(i) == 1) {
             mappingButtons[i] = (brls::ControllerButton)layout.mapping.at(i);

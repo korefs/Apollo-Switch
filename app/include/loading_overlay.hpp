@@ -9,14 +9,16 @@
 
 #include <borealis.hpp>
 
-class LoadingOverlay : brls::Box {
+class LoadingOverlay : public brls::Box {
   public:
     LoadingOverlay(Box* holder);
 
     void layout();
     void setHidden(bool hide);
+    void setMessage(const std::string& message);
 
   private:
     Box* holder = nullptr;
     BRLS_BIND(brls::ProgressSpinner, progress, "progress");
+    BRLS_BIND(brls::Label, message, "message");
 };

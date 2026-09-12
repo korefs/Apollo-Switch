@@ -31,6 +31,7 @@ unsigned int sceLibcHeapSize             = 24 * 1024 * 1024;
 #include "main_activity.hpp"
 #include "main_tabs_view.hpp"
 #include "settings_tab.hpp"
+#include "ui_theme.hpp"
 #include "views/boolean_slider_cell.hpp"
 
 #include "DiscoverManager.hpp"
@@ -152,6 +153,9 @@ int main(int argc, char* argv[]) {
     brls::Application::registerXMLView("HostTab", HostTab::create);
     brls::Application::registerXMLView("AddHostTab", AddHostTab::create);
     brls::Application::registerXMLView("SettingsTab", SettingsTab::create);
+
+    // Add the shared Apollo visual vocabulary before any XML view is inflated.
+    ApolloUI::applyTheme();
 
     // Add custom values to the theme
     brls::Theme::getLightTheme().addColor("captioned_image/caption",

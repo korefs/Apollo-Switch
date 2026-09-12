@@ -173,6 +173,18 @@ unset(_moonlight_vcpkg_triplet_dir)
 
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 add_subdirectory(extern)
+
+# moonlight-common-c ships a newer ENet implementation than the one supplied
+# by Switch portlibs. Ensure its sources compile against their matching headers.
+if (PLATFORM_SWITCH)
+    set(_moonlight_enet_include
+        "${CMAKE_CURRENT_SOURCE_DIR}/extern/moonlight-common-c/enet/include")
+    set_property(TARGET enet PROPERTY INCLUDE_DIRECTORIES "${_moonlight_enet_include}")
+    set_property(TARGET enet PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${_moonlight_enet_include}")
+    set_property(TARGET enet PROPERTY INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "")
+    unset(_moonlight_enet_include)
+endif ()
+
 if ((PLATFORM_IOS OR PLATFORM_VISIONOS) AND TARGET borealis)
     get_target_property(_borealis_interface_options borealis INTERFACE_COMPILE_OPTIONS)
     if (_borealis_interface_options)
@@ -799,7 +811,10 @@ endif ()
 if (PLATFORM_DESKTOP)
     enable_testing()
     add_executable(profile_precedence_test tests/profile_precedence_test.cpp)
-    target_include_directories(profile_precedence_test PRIVATE app/include app/src)
+    target_include_directories(profile_precedence_test PRIVATE
+        app/include
+        app/src
+        app/src/integrations/apollo)
+    target_link_libraries(profile_precedence_test PRIVATE borealis)
     add_test(NAME ProfilePrecedenceTest COMMAND profile_precedence_test)
 endif()
-

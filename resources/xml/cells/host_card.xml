@@ -1,0 +1,30 @@
+<brls:Box
+    width="360"
+    height="176"
+    axis="column"
+    justifyContent="spaceBetween"
+    focusable="true"
+    cornerRadius="@style/apollo/card_radius"
+    backgroundColor="@theme/apollo/surface"
+    padding="@style/apollo/space_m">
+
+    <brls:Label
+        id="title"
+        width="auto"
+        height="auto"
+        fontSize="28"
+        singleLine="true" />
+
+    <brls:Label
+        id="connection"
+        width="auto"
+        height="auto"
+        fontSize="16"
+        textColor="@theme/apollo/secondary" />
+
+    <brls:Label
+        id="status"
+        width="auto"
+        height="auto"
+        fontSize="15" />
+</brls:Box>

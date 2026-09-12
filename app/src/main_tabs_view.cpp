@@ -10,11 +10,14 @@
 #include "about_tab.hpp"
 #include "add_host_tab.hpp"
 #include "host_tab.hpp"
+#include "host_list_view.hpp"
 #include "settings_tab.hpp"
 
 MainTabs::MainTabs() {
     favoriteTab = new FavoriteTab();
     favoriteTab->ptrLock();
+    hostListView = new HostListView();
+    hostListView->ptrLock();
 
     MainTabs::instanse = this;
     refillTabs();
@@ -46,19 +49,15 @@ void MainTabs::refillTabs(bool keepFocus) {
 
     clearTabs();
 
+    addTab("Hosts", [this] { return this->hostListView; });
+    addSeparator();
+
     bool hasAnyFavorite = Settings::instance().has_any_favorite();
     if (hasAnyFavorite) {
         addTab("tabs/favorites"_i18n, [this] { return this->favoriteTab; });
         addSeparator();
     }
     lastHasAnyFavorites = hasAnyFavorite;
-
-    auto hosts = Settings::instance().hosts();
-    for (const Host& host : hosts) {
-        addTab(host.hostname, [host] { return new HostTab(host); });
-    }
-    if (!hosts.empty())
-        addSeparator();
 
     addTab("tabs/add_host"_i18n, AddHostTab::create);
     addTab("tabs/settings"_i18n, SettingsTab::create);

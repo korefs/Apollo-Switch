@@ -13,9 +13,13 @@
 #include <Settings.hpp>
 #include <borealis.hpp>
 #include <optional>
+#include <string>
 #include "GameStreamClient.hpp"
 #include "MoonlightSession.hpp"
 #include "two_finger_scroll_recognizer.hpp"
+#include <chrono>
+
+enum class StreamStatsMode : int { Off = 0, Compact = 1, Detailed = 2 };
 
 class StreamingView : public brls::Box {
   public:
@@ -30,7 +34,9 @@ class StreamingView : public brls::Box {
 
     void terminate(bool terminateApp);
 
-    bool draw_stats = false;
+    // UI-only state. It intentionally does not alter session telemetry or
+    // persist new stream behavior.
+    StreamStatsMode statsMode = StreamStatsMode::Off;
 
     Host getHost() { return host; }
 
@@ -51,6 +57,8 @@ class StreamingView : public brls::Box {
     size_t bottombarDelayTask = -1;
     bool m_use_hdr = false;
     TwoFingerScrollGestureRecognizer* scrollTouchRecognizer = nullptr;
+    std::chrono::steady_clock::time_point compactStatsUpdatedAt{};
+    std::string compactStatsText;
 
     void handleInput();
     void handleOverlayCombo();

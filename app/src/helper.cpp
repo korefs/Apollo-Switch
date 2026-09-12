@@ -19,7 +19,16 @@ void showAlert(std::string message, const std::function<void(void)>& cb) {
 }
 
 void showError(const std::string& message, const std::function<void(void)>& cb) {
-    showAlert("error/dialog_header"_i18n + "\n\n" + message, cb);
+    // Keep protocol and diagnostic text available without making it the first
+    // thing a player sees. The continuation callback still runs on Close, or
+    // after the Details sheet is dismissed, matching the old one-dialog flow.
+    auto* error = new Dialog("Couldn't complete that action.");
+    error->addButton("common/close"_i18n, cb);
+    error->addButton("Details", [message, cb] {
+        showAlert(message, cb);
+    });
+    error->setCancelable(false);
+    error->open();
 }
 
 brls::Dialog* createLoadingDialog(

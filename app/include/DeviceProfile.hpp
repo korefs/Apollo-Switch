@@ -6,12 +6,22 @@
 #pragma once
 
 #include "StreamProfile.hpp"
+#include <optional>
 #include <string>
 
 enum class DeviceMode : int {
     Unknown  = 0,
     Handheld = 1,
     Docked   = 2,
+};
+
+// User-configured stream and input overrides selected from the Switch's
+// operation mode. Unset values inherit the next profile layer.
+struct ContextualDeviceProfile {
+    bool enabled = false;
+    std::optional<int> bitrate;
+    std::optional<VideoCodec> videoCodec;
+    std::optional<int> mappingLayout;
 };
 
 class DeviceProfile {

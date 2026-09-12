@@ -269,8 +269,10 @@ OptionsTab::OptionsTab(StreamingView* streamView) : streamView(streamView) {
                             });
 
     debugButton->init(
-        "streaming/debug_info"_i18n, streamView->draw_stats,
-        [streamView](bool value) { streamView->draw_stats = value; });
+        "streaming/debug_info"_i18n, {"Off", "Compact", "Detailed"},
+        static_cast<int>(streamView->statsMode), [streamView](int value) {
+            streamView->statsMode = static_cast<StreamStatsMode>(value);
+        });
 
 #ifdef SUPPORT_UPSCALING
     if (!isVideoUpscalingSupported()) {

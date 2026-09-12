@@ -194,6 +194,19 @@
         "inherited": "Inherited from global defaults",
         "all_inherited": "All inherit global defaults"
     },
+    "contextual_profiles": {
+        "title": "Contextual Profiles",
+        "description": "Choose Handheld or Docked settings for the next stream. Host profiles take precedence.",
+        "settings_detail": "Handheld and Docked defaults",
+        "handheld": "Handheld",
+        "docked": "Docked",
+        "enable": "Use this profile",
+        "override_bitrate": "Override bitrate",
+        "inherit": "Inherit",
+        "use_global_layout": "Use global layout",
+        "configured": "Configured for new streams",
+        "disabled": "Disabled"
+    },
     "streaming": {
         "connection": "Connection",
         "debug_info": "Debug info",

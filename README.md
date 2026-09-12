@@ -53,6 +53,7 @@ Apollo Switch is heavily focused on providing the best experience with **Apollo 
 *   **Virtual Display Integration:** Easily request custom virtual displays right from the client.
     *   Set **Resolution** (`720p`, `1080p`, `1440p`, etc.) and **Refresh Rate** directly in the client settings.
     *   **Automatic Mode** automatically adjusts the requested resolution depending on the Switch's state: Handheld (`720p`) or Docked (`1080p`).
+*   **Contextual Profiles:** Under **Settings → Contextual Profiles**, configure global Handheld and Docked defaults for bitrate, video codec, and controller layout. The profile is selected when a stream starts; per-host streaming profiles still take precedence over it.
 
 *(Note: While Apollo Switch requests these Virtual Display parameters, the actual task of setting the virtual display as the main screen and disconnecting physical monitors must be configured on the host PC using Sunshine scripts or native tools).*
 
@@ -61,7 +62,7 @@ Apollo Switch is heavily focused on providing the best experience with **Apollo 
 We are constantly thinking of new ways to leverage the Switch and Apollo Server ecosystem. Some of the features we might explore in the future include:
 
 *   **Custom Server Commands UI:** A dedicated panel in the app overlay to trigger scripts directly on your host PC (e.g., "Reset Audio Driver", "Turn off physical monitors", or "Launch specific emulator"), utilizing Apollo's capability extensions.
-*   **Contextual Profiles (Docked vs. Handheld):** Going beyond just changing resolutions! Automatically swapping bitrate limits, codec choices, and controller button mappings the moment you drop the Switch into the dock.
+*   **Live Contextual Profile Switching:** Apply Handheld/Docked bitrate, codec, and controller-layout changes while streaming when the Switch is docked or undocked.
 *   **Advanced Motion (Gyro) Integration:** A dedicated UI to calibrate and fine-tune the Switch's native gyroscope to send 1:1 motion data to PC emulators (like Cemu/Yuzu/Dolphin) via Sunshine's DS4 emulation.
 *   **Adaptive Bitrate Optimization:** Real-time stream monitoring that smoothly scales down bitrate during Wi-Fi drops to prevent freezes, then scales back up when the connection stabilizes.
 *   **Fast Host-Switching:** A quick menu in the overlay to seamlessly jump between multiple configured PCs/servers without needing to close your current streaming session first.

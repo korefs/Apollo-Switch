@@ -87,6 +87,7 @@ EffectiveStreamProfile ProfileResolver::globalDefaults() {
     resolved.ditheringStrength = settings.dithering_strength();
     resolved.rcas = settings.rcas();
     resolved.rcasStrength = settings.rcas_strength();
+    resolved.mappingLayout = settings.get_current_mapping_layout();
     return resolved;
 }
 
@@ -174,13 +175,13 @@ EffectiveStreamProfile ProfileResolver::resolve(
     NetworkConnectionType connectionType, DeviceMode deviceMode,
     const std::optional<StreamProfile>& sessionOverride) {
 
-    // Layer 5: Global Defaults (Settings baseline)
+    // Layer 6: Global Defaults (Settings baseline)
     EffectiveStreamProfile resolved = globalDefaults();
 
-    // Layer 4: Device Profile Defaults
+    // Layer 5: Device Profile Defaults
     applyDeviceDefaults(resolved, deviceMode);
 
-    // Layer 3: Network Profile Defaults
+    // Layer 4: Network Profile Defaults
     const auto context = resolveContext(host, activeAddress, connectionType);
     resolved.context = context;
     if (context) {
@@ -188,6 +189,11 @@ EffectiveStreamProfile ProfileResolver::resolve(
     } else {
         applyNetworkDefaults(resolved, connectionType);
     }
+
+    // Layer 3: Contextual Device Profile
+    if (deviceMode != DeviceMode::Unknown)
+        apply_contextual_device_profile(
+            resolved, Settings::instance().device_profile(deviceMode));
 
     // Layer 2: Host Profile Override (per context)
     if (context) {
@@ -201,6 +207,9 @@ EffectiveStreamProfile ProfileResolver::resolve(
     if (sessionOverride && sessionOverride->enabled) {
         applyProfileOverride(resolved, *sessionOverride);
     }
+
+    // Validate the final choice after every profile layer has been composed.
+    resolved.videoCodec = validatedVideoCodec(resolved.videoCodec);
 
     // Hardware capability sanitization
 #ifndef SUPPORT_HDR
@@ -220,15 +229,20 @@ EffectiveStreamProfile ProfileResolver::resolve(
     DeviceMode deviceMode,
     const std::optional<StreamProfile>& sessionOverride) {
 
-    // Layer 5: Global Defaults
+    // Layer 6: Global Defaults
     EffectiveStreamProfile resolved = globalDefaults();
     resolved.context = context;
 
-    // Layer 4: Device Profile Defaults
+    // Layer 5: Device Profile Defaults
     applyDeviceDefaults(resolved, deviceMode);
 
-    // Layer 3: Network Profile Defaults (for this context)
+    // Layer 4: Network Profile Defaults (for this context)
     applyNetworkDefaults(resolved, context);
+
+    // Layer 3: Contextual Device Profile
+    if (deviceMode != DeviceMode::Unknown)
+        apply_contextual_device_profile(
+            resolved, Settings::instance().device_profile(deviceMode));
 
     // Layer 2: Host Profile Override
     const auto it = host.streamProfiles.find(context);
@@ -240,6 +254,9 @@ EffectiveStreamProfile ProfileResolver::resolve(
     if (sessionOverride && sessionOverride->enabled) {
         applyProfileOverride(resolved, *sessionOverride);
     }
+
+    // Validate the final choice after every profile layer has been composed.
+    resolved.videoCodec = validatedVideoCodec(resolved.videoCodec);
 
 #ifndef SUPPORT_HDR
     resolved.requestHdr = false;

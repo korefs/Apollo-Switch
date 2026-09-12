@@ -13,6 +13,11 @@
 #include "stream_profiles_view.hpp"
 #include "StreamProfileResolver.hpp"
 
+#ifdef PLATFORM_SWITCH
+#include "NetworkState.hpp"
+#include "OperationMode.hpp"
+#endif
+
 using namespace brls::literals;
 
 namespace {
@@ -140,24 +145,32 @@ void HostTab::onFocusGained() {
 
 void HostTab::updateStreamProfileSummary() {
 #ifdef PLATFORM_SWITCH
-    size_t configuredProfiles = 0;
-    for (const auto& [context, profile] : host.streamProfiles) {
-        if (profile.enabled)
-            configuredProfiles++;
+    const auto activeAddress = GameStreamClient::instance().active_address(host);
+    const auto effective = StreamProfileResolver::resolve(
+        host, activeAddress, NetworkState::current(), OperationMode::current());
+    std::string detail = StreamProfileResolver::summary(effective) + "  •  " +
+                         getVideoCodecName(effective.videoCodec);
+    if (effective.context) {
+        detail = "ACTIVE  •  " +
+                 StreamProfileResolver::contextName(*effective.context) +
+                 "  •  " + detail;
+    } else {
+        detail = "GLOBAL DEFAULTS  •  " + detail;
     }
-    streamProfiles->setDetailText(
-        configuredProfiles == 0
-            ? "stream_profiles/all_inherited"_i18n
-            : fmt::format("{} / 3", configuredProfiles));
+    streamProfiles->setDetailText(detail);
+    streamProfiles->setDetailTextColor(Application::getTheme()["apollo/secondary"]);
 #endif
 }
 
 void HostTab::reloadHost() {
     host = Settings::instance().host(host).value_or(host);
     state = FETCHING;
-    header->setTitle("host/status"_i18n + ": " + "host/fetching"_i18n);
-    header->setSubtitle(host_subtitle(host));
-    connect->setText("host/wait"_i18n);
+    header->setTitle(host.hostname.empty() ? host.preferred_address()
+                                           : host.hostname);
+    header->setSubtitle("CHECKING CONNECTION  •  " + host_subtitle(host));
+    connect->setText("Open library");
+    connect->setDetailText("Checking host status");
+    connect->setDetailTextColor(Application::getTheme()["apollo/secondary"]);
 
     ASYNC_RETAIN
     GameStreamClient::instance().connect(
@@ -167,20 +180,27 @@ void HostTab::reloadHost() {
             if (result.isSuccess()) {
                 const auto connectedAddress =
                     GameStreamClient::instance().active_address(this->host);
-                header->setTitle("host/status"_i18n + ": " + "host/ready"_i18n);
-                header->setSubtitle(connectedAddress.empty()
-                                        ? host_subtitle(this->host)
-                                        : connectedAddress);
-                connect->setText("host/connect"_i18n);
+                const auto caps = ApolloCapabilities::detect(result.value());
+                header->setSubtitle(
+                    std::string("ONLINE") + (caps.isApollo ? "  •  APOLLO" : "") +
+                    "  •  " + (connectedAddress.empty()
+                                     ? host_subtitle(this->host)
+                                     : connectedAddress));
+                connect->setText("Open library");
+                connect->setDetailText("Applications and games");
+                connect->setDetailTextColor(
+                    Application::getTheme()["apollo/online"]);
                 state = AVAILABLE;
 
-                const auto caps = ApolloCapabilities::detect(result.value());
                 this->host.apolloCaps = caps;
                 Settings::instance().set_host_capabilities(this->host, caps);
+                updateStreamProfileSummary();
             } else {
-                header->setTitle("host/status"_i18n + ": " +
-                                 "host/unable"_i18n);
+                header->setSubtitle("OFFLINE  •  " + host_subtitle(this->host));
                 connect->setText("host/wake_up"_i18n);
+                connect->setDetailText("Try Wake on LAN");
+                connect->setDetailTextColor(
+                    Application::getTheme()["apollo/offline"]);
                 state = UNAVAILABLE;
             }
         });

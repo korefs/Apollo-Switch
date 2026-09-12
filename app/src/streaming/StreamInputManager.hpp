@@ -66,7 +66,9 @@ class StreamInputManager : public Singleton<StreamInputManager> {
     void handleRumble(unsigned short controller, unsigned short lowFreqMotor, unsigned short highFreqMotor);
     void handleRumbleTriggers(unsigned short controller, unsigned short lowFreqMotor, unsigned short highFreqMotor);
     void updateTouchScreenPanDelta(brls::PanGestureStatus panStatus);
-    void reloadButtonMappingLayout();
+    // A non-negative index selects a session-specific layout. Invalid indices
+    // fall back to the user's global layout.
+    void reloadButtonMappingLayout(int layoutIndex = -1);
     void setInputEnabled(bool enabled) { inputEnabled = enabled; }
     static void leftMouseClick();
     static void rightMouseClick();

@@ -10,6 +10,7 @@
 #endif
 
 #include "settings_tab.hpp"
+#include "contextual_profiles_view.hpp"
 #include "Settings.hpp"
 #include "helper.hpp"
 #include "key_combo_settings.hpp"
@@ -359,6 +360,17 @@ SettingsTab::SettingsTab() {
     });
 
     refreshVideoCodecs();
+
+#if defined(PLATFORM_SWITCH)
+    contextualProfiles->setText("contextual_profiles/title"_i18n);
+    contextualProfiles->setDetailText("contextual_profiles/settings_detail"_i18n);
+    contextualProfiles->registerClickAction([this](View*) {
+        present(new ContextualProfilesView());
+        return true;
+    });
+#else
+    contextualProfiles->removeFromSuperView(true);
+#endif
 
 #if defined(PLATFORM_SWITCH)
     const std::vector<FramePacingMode> framePacingModes = {

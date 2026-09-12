@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "StreamProfile.hpp"
+#include "DeviceProfile.hpp"
 #include "ApolloCapabilities.hpp"
 #include "ApolloVirtualDisplay.hpp"
 
@@ -50,6 +51,13 @@ class Settings : public Singleton<Settings> {
     void set_stream_quality_aggregate(
         const Host& host, StreamProfileContext context,
         const StreamQualityAggregate& aggregate);
+    [[nodiscard]] const ContextualDeviceProfile&
+    device_profile(DeviceMode mode) const;
+    void set_device_profile(DeviceMode mode,
+                            const ContextualDeviceProfile& profile,
+                            bool persist = true);
+    void remove_mapping_layout(int index, bool persist = true);
+    [[nodiscard]] bool has_mapping_layout(int index) const;
 
     void add_favorite(const Host& host, const App& app);
     void remove_favorite(const Host& host, int app_id);
@@ -371,7 +379,7 @@ class Settings : public Singleton<Settings> {
     void set_deadzone_stick_right(float deadzone) { m_deadzone_stick_right = deadzone; }
     [[nodiscard]] float get_deadzone_stick_right() const { return m_deadzone_stick_right; }
 
-    int get_current_mapping_layout();
+    int get_current_mapping_layout() const;
     void set_current_mapping_layout(int layout) { m_current_mapping_layout = layout; }
 
     std::vector<KeyMappingLayout>* get_mapping_laouts() { return &m_mapping_laouts; }
@@ -392,6 +400,8 @@ class Settings : public Singleton<Settings> {
     AudioSettings m_audio;
     InputSettings m_input;
     ApolloSettings m_apollo;
+    ContextualDeviceProfile m_handheld_device_profile;
+    ContextualDeviceProfile m_docked_device_profile;
     bool m_write_log_internal = false;
 
     // Reference aliases maintaining 100% backward compatibility

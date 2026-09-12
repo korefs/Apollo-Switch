@@ -21,7 +21,9 @@
         
             <brls:Header
                 id="header"
-                title="@i18n/streaming/connection"/>
+                title="@i18n/streaming/connection"
+                subtitle="Leave the stream, or close the game running on your PC."
+                lineBottom="0"/>
                 
             <brls:DetailCell
                 id="disconnect"/>
